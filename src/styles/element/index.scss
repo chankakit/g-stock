@@ -1,0 +1,148 @@
+/* ElemnetUi 主题覆盖 */
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': (
+      'base': #40446A,
+    ),
+  ),
+);
+
+@use "element-plus/theme-chalk/src/dark/css-vars.scss" as *;
+// @use "element-plus/theme-chalk/src/index.scss" as *;
+
+/* 覆盖 ElementUI 样式 */
+html.dark {
+  --el-border-color-lighter: #2a2a2b;
+  --el-fill-color-lighter: #23242A;
+}
+:root {
+  --el-border-radius-base: 8px;
+}
+.el-popper {
+  overflow: hidden;
+  --el-popper-border-radius: 8px;
+}
+.el-dropdown__popper.el-popper {
+  box-shadow: 0px 4px 24px rgba(24, 25, 31, 0.45);
+}
+.el-popper.is-light {
+  border: none;
+}
+.el-table {
+  --el-table-row-hover-bg-color: #282A3F;
+}
+.el-table .el-table__cell {
+  padding: 0;
+}
+.el-table__body-wrapper tr td.el-table-fixed-column--left {
+  background-color: #1F2026;
+}
+.el-table-v2__main {
+  background-color: #1F2026;
+}
+.el-table-v2__header {
+  border-bottom: var(--el-table-border);
+}
+.el-table-v2__header-row {
+  border: none;
+}
+.el-table-v2__header-wrapper {
+  background: rgba(46, 49, 82, 0.25);
+}
+.el-table-v2__header-cell {
+  font-size: 16px;
+  font-weight: 500;
+  background: transparent;
+  color: rgba(255,255,255, .8);
+}
+.el-table-v2__header-cell .el-table-v2__header-cell-sub-title {
+  line-height: 11px;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255,255,255, .5);
+}
+.el-pagination {
+  --el-pagination-border-radius: 4px;
+}
+.el-pagination.is-background .el-pager li {
+  transition: background-color .15s ease-in-out;
+}
+.el-pagination.is-background .el-pager li:hover {
+  background-color: #282A3F;
+  color: white;
+}
+.el-pagination.is-background button:hover {
+  background-color: #282A3F;
+  color: white;
+}
+
+.el-input__wrapper {
+  /* border: none; */
+  border-radius: 8px;
+  background-color: #1D1E23;
+  box-shadow: 0 0 0 1px transparent;
+}
+.el-input__inner {
+  font-weight: inherit;
+}
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px #40446A;
+  /* box-shadow: none; */
+  /* background-color: #1F2026; */
+}
+.el-popper__arrow {
+  display: none;
+}
+.el-checkbox {
+  --el-checkbox-input-height: 16px;
+  --el-checkbox-input-width: 16px;
+}
+.el-checkbox__inner {
+  border: none;
+  border-radius: 3px;
+  background-color: #1f2235;
+}
+.el-checkbox__inner:hover {
+  background-color: #26293f;
+}
+.el-checkbox__inner:after {
+  border: 2.5px solid var(--el-checkbox-checked-icon-color);
+  border-left: 0;
+  border-top: 0;
+  height: 8px;
+  left: 5.5px;
+  top: 1.2px;
+  width: 3px;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: #1f2235;
+}
+
+/* 自动补全输入框菜单 */
+.el-autocomplete__popper.el-popper {
+  box-shadow: 0 4px 24px rgba(28,28,32,.55);
+}
+.el-autocomplete-suggestion__wrap {
+  background-color: #282A3F;
+}
+.el-autocomplete-suggestion li:hover {
+  background-color: rgba(255,255,255, .07)
+}
+
+/* 弹出选择器 */
+.el-select__popper.el-popper {
+  box-shadow: 0 4px 24px rgba(28,28,32,.55);
+}
+.el-popper.is-light {
+  background-color: #282A3F;
+}
+.el-select-dropdown__item.hover, .el-select-dropdown__item:hover {
+  background-color: rgba(255,255,255, .07);
+}
+.el-autocomplete-suggestion li.highlighted {
+  background-color: rgba(255,255,255, .07)
+}
+.el-select-dropdown__item.selected {
+  color: #F2F2F2;
+}
+
