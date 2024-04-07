@@ -489,7 +489,7 @@ const columns = [
   {
     "dataKey": "rps_mean",
     "key": "rps_mean",
-    "title": "RPS Mean",
+    "title": "强度均值",
     "sortable": true,
     "width": rpsColumnWidth,
     "align": "right",
