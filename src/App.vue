@@ -474,7 +474,7 @@ const columns = [
     "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_10'], highlightThreshold, 1),
     "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_10'], highlightThreshold, 1),
   },
-  {
+   /*{
     "dataKey": "rps_5",
     "key": "rps_5",
     "title": "RPS 5",
@@ -485,7 +485,7 @@ const columns = [
     "fixed": false,
     "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_5'], highlightThreshold, 1),
     "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_5'], highlightThreshold, 1),
-  },
+  }, */
   {
     "dataKey": "rps_mean",
     "key": "rps_mean",
@@ -587,13 +587,13 @@ let filters = [
     min: 0,
     max: 100
   },
-  {
+  /*{
     isOn: false,
     name: "RPS_5",
     key: "rps_5",
     min: 0,
     max: 100
-  },
+  },*/
   {
     isOn: false,
     name: "强度均值",
