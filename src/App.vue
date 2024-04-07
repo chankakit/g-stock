@@ -138,12 +138,12 @@ const tableData = computed(() => {
   }
 })
 // 单数组的单元格自定义渲染函数
-function singleNumCellDom(data, highlightValue=null) {
+function singleNumCellDom(data, highlightValue=null, decimalPoint=2) {
   let domClass = 'cell-main-text'
   if(highlightValue) {
     domClass = domClass + (data>=highlightValue ? ' highlight' : '')
   }
-  let dom = <div class={domClass}>{ data.toFixed(2) }</div>
+  let dom = <div class={domClass}>{ data.toFixed(decimalPoint) }</div>
   return dom
 }
 // 设置V2偶数行的背景样式
@@ -224,6 +224,7 @@ const filterSort = (sortBy) => {
 
 // 列设置
 const rpsColumnWidth = 100
+const highlightThreshold = 87
 const columns = [
   {
     "dataKey": "stock",
@@ -266,8 +267,8 @@ const columns = [
     "key": "change_pct",
     "title": "涨跌",
     "subTitle": "涨跌额",
-    "width": 110,
-    "minWidth": 100,
+    "width": 100,
+    "minWidth": 90,
     "align": "right",
     "flexGrow": 1,
     "sortable": true,
@@ -321,6 +322,65 @@ const columns = [
      }
   },
   {
+    "dataKey": "m10_offset_pct",
+    "key": "m10_offset_pct",
+    "title": "M10 偏离",
+    "subTitle": "M10",
+    "width": 100,
+    "minWidth": 90,
+    "align": "right",
+    "flexGrow": 1,
+    "sortable": true,
+    "fixed": true,
+    "headerCellRenderer": ({ column }) => 
+      <div>
+        <div class="el-table-v2__header-cell-text">{column.title}</div>
+        <div class="el-table-v2__header-cell-sub-title">{column.subTitle}</div>
+      </div>,
+     "cellRenderer": ({ rowData }) => {
+        let domClass = 'custom-cell '
+        if(rowData.m10_offset_pct === '停牌') {
+          domClass = domClass + 'cell-main-text'
+          let dom = <div class={domClass}>{ rowData.m10_offset_pct }</div>
+          return dom
+        } else {
+          if(rowData.m10_offset_pct>0) { domClass += 'red' }
+          else if(rowData.m10_offset_pct<0) { domClass += 'green' }
+          let sign = rowData.m10_offset_pct>0 ? '+' : ''
+          let cellBgColor = 'rgba(0, 0, 0, 0)'
+          if(rowData.m10_offset_pct>5) { cellBgColor = 'rgba(255, 41, 59, 0.06)' }
+          let cellStyle = 'background-color: ' + cellBgColor
+          let dom = 
+          <div class={domClass} style={cellStyle}>
+            <div class='cell-main-text'>{ sign }{ rowData.m10_offset_pct.toFixed(2) }%</div>
+            <div class='cell-tip-text'>{ sign }{ rowData.m10.toFixed(2) }</div>
+          </div>
+          return dom
+        }
+     },
+     "cellRendererV1": (rowData) => {
+        let domClass = 'change-cell '
+        if(rowData.m10_offset_pct === '停牌') {
+          domClass = domClass + 'cell-main-text'
+          let dom = <div class={domClass}>{ rowData.m10_offset_pct }</div>
+          return dom
+        } else {
+          if(rowData.m10_offset_pct>0) { domClass += 'red' }
+          else if(rowData.m10_offset_pct<0) { domClass += 'green' }
+          let sign = rowData.m10_offset_pct>0 ? '+' : ''
+          let cellBgColor = 'rgba(0, 0, 0, 0);'
+          if(rowData.m10_offset_pct>5) { cellBgColor = 'rgba(255, 41, 59, 0.06);' }
+          let cellStyle = 'background-color: ' + cellBgColor + 'height: 48px;'
+          let dom = 
+          <div class={domClass} style={cellStyle}>
+            <div class='cell-main-text'>{ sign }{ rowData.m10_offset_pct.toFixed(2) }%</div>
+            <div class='cell-tip-text'>{ sign }{ rowData.m10.toFixed(2) }</div>
+          </div>
+          return dom
+        }
+     }
+  },
+  {
     "dataKey": "rvol",
     "key": "rvol",
     "title": "量比",
@@ -363,8 +423,8 @@ const columns = [
     "align": "right",
     "flexGrow": 1,
     "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_250'], 87),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_250'], 87)
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_250'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_250'], highlightThreshold, 1)
   },
   {
     "dataKey": "rps_120",
@@ -375,8 +435,8 @@ const columns = [
     "align": "right",
     "flexGrow": 1,
     "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_120'], 87),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_120'], 87)
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_120'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_120'], highlightThreshold, 1)
   },
   {
     "dataKey": "rps_60",
@@ -387,8 +447,8 @@ const columns = [
     "align": "right",
     "flexGrow": 1,
     "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_60'], 87),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_60'], 87),
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_60'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_60'], highlightThreshold, 1),
   },
   {
     "dataKey": "rps_20",
@@ -399,8 +459,8 @@ const columns = [
     "align": "right",
     "flexGrow": 1,
     "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_20'], 87),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_20'], 87),
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_20'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_20'], highlightThreshold, 1),
   },
   {
     "dataKey": "rps_10",
@@ -411,8 +471,8 @@ const columns = [
     "align": "right",
     "flexGrow": 1,
     "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_10'], 87),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_10'], 87),
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_10'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_10'], highlightThreshold, 1),
   },
   {
     "dataKey": "rps_5",
@@ -423,8 +483,20 @@ const columns = [
     "align": "right",
     "flexGrow": 1,
     "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_5'], 87),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_5'], 87),
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_5'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_5'], highlightThreshold, 1),
+  },
+  {
+    "dataKey": "rps_mean",
+    "key": "rps_mean",
+    "title": "RPS Mean",
+    "sortable": true,
+    "width": rpsColumnWidth,
+    "align": "right",
+    "flexGrow": 1,
+    "fixed": false,
+    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_mean'], highlightThreshold, 1),
+    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_mean'], highlightThreshold, 1),
   },
 ]
 // RPS 数据
@@ -437,32 +509,6 @@ watch(processedData, () => {
   currentPage.value = 1
   pageCount.value = Math.floor(processedData.value.length / pageSize.value) + 1
 })
-// 拉取 RPS 数据
-// function getRpsData() {
-//   axios.get('/api/price-and-rps/')
-//   .then(function (response) {
-//     // handle success
-//     originalData = response.data
-//     let ps = originalData[Math.floor(originalData.length * Math.random())]
-//     // 设置搜索框的 placeholder 文本
-//     searchInputPlaceholder.value = ps.company_code + ' / ' + ps.company_abbr + ' / ' + ps.company_pinyin
-//     processedData.value = response.data
-//     // 默认按 RPS 60 倒序展示
-//     const defaultSortArgs = {
-//       key: 'rps_60',
-//       order: TableV2SortOrder.DESC
-//     }
-//     onSort(defaultSortArgs)
-//   })
-//   .catch(function (error) {
-//     // handle error
-//     console.log(error)
-//   })
-//   .finally(function () {
-//     // always executed
-//   });
-// }
-// getRpsData()
 
 fetch('/data/price-and-rps.json')
   .then((response) => response.json())
@@ -491,6 +537,13 @@ let filters = [
     key: "change_pct",
     min: -Infinity,
     max: +Infinity
+  },
+  {
+    isOn: false,
+    name: "M10偏离量",
+    key: "m10_offset_pct",
+    min: -Infinity,
+    max: Infinity
   },
   {
     isOn: false,
@@ -538,6 +591,13 @@ let filters = [
     isOn: false,
     name: "RPS_5",
     key: "rps_5",
+    min: 0,
+    max: 100
+  },
+  {
+    isOn: false,
+    name: "RPS_Mean",
+    key: "rps_mean",
     min: 0,
     max: 100
   }
