@@ -596,7 +596,7 @@ let filters = [
   },
   {
     isOn: false,
-    name: "RPS_Mean",
+    name: "强度均值",
     key: "rps_mean",
     min: 0,
     max: 100
