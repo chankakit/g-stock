@@ -1,13 +1,18 @@
 <script setup lang='jsx'>
 import { ref, toRaw, onMounted, computed, watch } from 'vue'
-import { Info, SettingConfig, } from '@icon-park/vue-next'
+import { SettingConfig, } from '@icon-park/vue-next'
 import { TableV2SortOrder } from 'element-plus'
+import { columns } from './components/TableColumnConfig.jsx'
+import { filters } from './components/FilterConfig.js'
 import IndexGraphic from './components/IndexGraphic.vue'
 import StockPopup from './components/StockPopup.vue'
+import DescriptionPopup from './components/DescriptionPopup.vue'
+
 
 const props = defineEmits({
   stockDialogShow: Boolean,
 })
+
 
 // 最后更新时间字段
 const lastUpdateDate = ref('')
@@ -137,15 +142,7 @@ const tableData = computed(() => {
     return slicedData.value[currentPage.value-1]
   }
 })
-// 单数组的单元格自定义渲染函数
-function singleNumCellDom(data, highlightValue=null, decimalPoint=2) {
-  let domClass = 'cell-main-text'
-  if(highlightValue) {
-    domClass = domClass + (data>=highlightValue ? ' highlight' : '')
-  }
-  let dom = <div class={domClass}>{ data.toFixed(decimalPoint) }</div>
-  return dom
-}
+
 // 设置V2偶数行的背景样式
 const evenRowClass = ({ rowIndex }) => {
   if (rowIndex % 2 === 1) {
@@ -222,283 +219,7 @@ const filterSort = (sortBy) => {
   sortState.value = sortBy
 }
 
-// 列设置
-const rpsColumnWidth = 100
-const highlightThreshold = 87
-const columns = [
-  {
-    "dataKey": "stock",
-    "key": "stock",
-    "title": "股票",
-    "width": 100,
-    "minWidth": 98,
-    "align": "left",
-    "flexGrow": 1,
-    "fixed": true,
-    "cellRenderer": ({ rowData }) => {
-      let dom = 
-      <div>
-        <div class='cell-main-text'>{ rowData.company_abbr }</div>
-        <div class='cell-tip-text' style='opacity: .5; text-transform: uppercase;'>{ rowData.company_code }.{ (rowData.bk).substring(0,2) }</div>
-      </div>
-      return dom
-    },
-    "cellRendererV1": (rowData) => {
-      let dom = 
-      <div>
-        <div class='cell-main-text'>{ rowData.company_abbr }</div>
-        <div class='cell-tip-text' style='opacity: .5; text-transform: uppercase;'>{ rowData.company_code }.{ (rowData.bk).substring(0,2) }</div>
-      </div>
-      return dom
-    }
-  },
-  {
-    "dataKey": "close",
-    "key": "close",
-    "title": "收盘",
-    "width": 100,
-    "align": "right",
-    "fixed": true,
-    "cellRenderer": ({ rowData }) => <div class='cell-main-text'>{ rowData.close === '停牌' ? '停牌' : rowData.close.toFixed(2) }</div>,
-    "cellRendererV1": (rowData) => <div class='cell-main-text'>{ rowData.close === '停牌' ? '停牌' : rowData.close.toFixed(2) }</div>,
-  },
-  {
-    "dataKey": "change_pct",
-    "key": "change_pct",
-    "title": "涨跌",
-    "subTitle": "涨跌额",
-    "width": 100,
-    "minWidth": 90,
-    "align": "right",
-    "flexGrow": 1,
-    "sortable": true,
-    "fixed": true,
-    "headerCellRenderer": ({ column }) => 
-      <div>
-        <div class="el-table-v2__header-cell-text">{column.title}</div>
-        <div class="el-table-v2__header-cell-sub-title">{column.subTitle}</div>
-      </div>,
-     "cellRenderer": ({ rowData }) => {
-        let domClass = 'custom-cell '
-        if(rowData.change_pct === '停牌') {
-          domClass = domClass + 'cell-main-text'
-          let dom = <div class={domClass}>{ rowData.change_pct }</div>
-          return dom
-        } else {
-          if(rowData.change_pct>0) { domClass += 'red' }
-          else if(rowData.change_pct<0) { domClass += 'green' }
-          let sign = rowData.change_pct>0 ? '+' : ''
-          let cellBgColor = 'rgba(0, 0, 0, 0)'
-          if(rowData.change_pct>5) { cellBgColor = 'rgba(255, 41, 59, 0.06)' }
-          let cellStyle = 'background-color: ' + cellBgColor
-          let dom = 
-          <div class={domClass} style={cellStyle}>
-            <div class='cell-main-text'>{ sign }{ rowData.change_pct.toFixed(2) }%</div>
-            <div class='cell-tip-text'>{ sign }{ rowData.change_abs.toFixed(2) }</div>
-          </div>
-          return dom
-        }
-     },
-     "cellRendererV1": (rowData) => {
-        let domClass = 'change-cell '
-        if(rowData.change_pct === '停牌') {
-          domClass = domClass + 'cell-main-text'
-          let dom = <div class={domClass}>{ rowData.change_pct }</div>
-          return dom
-        } else {
-          if(rowData.change_pct>0) { domClass += 'red' }
-          else if(rowData.change_pct<0) { domClass += 'green' }
-          let sign = rowData.change_pct>0 ? '+' : ''
-          let cellBgColor = 'rgba(0, 0, 0, 0);'
-          if(rowData.change_pct>5) { cellBgColor = 'rgba(255, 41, 59, 0.06);' }
-          let cellStyle = 'background-color: ' + cellBgColor + 'height: 48px;'
-          let dom = 
-          <div class={domClass} style={cellStyle}>
-            <div class='cell-main-text'>{ sign }{ rowData.change_pct.toFixed(2) }%</div>
-            <div class='cell-tip-text'>{ sign }{ rowData.change_abs.toFixed(2) }</div>
-          </div>
-          return dom
-        }
-     }
-  },
-  {
-    "dataKey": "m10_offset_pct",
-    "key": "m10_offset_pct",
-    "title": "M10 偏离",
-    "subTitle": "M10",
-    "width": 100,
-    "minWidth": 90,
-    "align": "right",
-    "flexGrow": 1,
-    "sortable": true,
-    "fixed": true,
-    "headerCellRenderer": ({ column }) => 
-      <div>
-        <div class="el-table-v2__header-cell-text">{column.title}</div>
-        <div class="el-table-v2__header-cell-sub-title">{column.subTitle}</div>
-      </div>,
-     "cellRenderer": ({ rowData }) => {
-        let domClass = 'custom-cell '
-        if(rowData.m10_offset_pct === '停牌') {
-          domClass = domClass + 'cell-main-text'
-          let dom = <div class={domClass}>{ rowData.m10_offset_pct }</div>
-          return dom
-        } else {
-          if(rowData.m10_offset_pct>0) { domClass += 'red' }
-          else if(rowData.m10_offset_pct<0) { domClass += 'green' }
-          let sign = rowData.m10_offset_pct>0 ? '+' : ''
-          let cellBgColor = 'rgba(0, 0, 0, 0)'
-          if(rowData.m10_offset_pct>5) { cellBgColor = 'rgba(255, 41, 59, 0.06)' }
-          let cellStyle = 'background-color: ' + cellBgColor
-          let dom = 
-          <div class={domClass} style={cellStyle}>
-            <div class='cell-main-text'>{ sign }{ rowData.m10_offset_pct.toFixed(2) }%</div>
-            <div class='cell-tip-text'>{ sign }{ rowData.m10.toFixed(2) }</div>
-          </div>
-          return dom
-        }
-     },
-     "cellRendererV1": (rowData) => {
-        let domClass = 'change-cell '
-        if(rowData.m10_offset_pct === '停牌') {
-          domClass = domClass + 'cell-main-text'
-          let dom = <div class={domClass}>{ rowData.m10_offset_pct }</div>
-          return dom
-        } else {
-          if(rowData.m10_offset_pct>0) { domClass += 'red' }
-          else if(rowData.m10_offset_pct<0) { domClass += 'green' }
-          let sign = rowData.m10_offset_pct>0 ? '+' : ''
-          let cellBgColor = 'rgba(0, 0, 0, 0);'
-          if(rowData.m10_offset_pct>5) { cellBgColor = 'rgba(255, 41, 59, 0.06);' }
-          let cellStyle = 'background-color: ' + cellBgColor + 'height: 48px;'
-          let dom = 
-          <div class={domClass} style={cellStyle}>
-            <div class='cell-main-text'>{ sign }{ rowData.m10_offset_pct.toFixed(2) }%</div>
-            <div class='cell-tip-text'>{ sign }{ rowData.m10.toFixed(2) }</div>
-          </div>
-          return dom
-        }
-     }
-  },
-  {
-    "dataKey": "rvol",
-    "key": "rvol",
-    "title": "量比",
-    "sortable": true,
-    "width": 90,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": true,
-    // "headerCellRenderer": ({ column }) => <div class="el-table-v2__header-cell-text custom-cell" style="border-right: 1.5px solid rgba(0,0,0,.2);">{column.title}</div>,
-    "cellRenderer": ({ rowData }) => {
-      let domClass = 'cell-main-text custom-cell'
-      const rightBorder = 'border-right: 1.5px solid rgba(0,0,0,.2);'
-      if(rowData.rvol === '停牌') {
-        let dom = <div class={domClass} style={rightBorder}>{ rowData.rvol }</div>
-        return dom
-      } else {
-        domClass = domClass + (rowData.rvol>=2.5 ? ' highlight' : '')
-        let dom = <div class={domClass} style={rightBorder}>{ rowData.rvol.toFixed(2) }</div>
-        return dom
-      }
-    },
-    "cellRendererV1": (rowData) => {
-      let domClass = 'cell-main-text '
-      if(rowData.rvol === '停牌') {
-        let dom = <div class={domClass}>{ rowData.rvol }</div>
-        return dom
-      } else {
-        domClass = domClass + (rowData.rvol>=2.5 ? ' highlight' : '')
-        let dom = <div class={domClass}>{ rowData.rvol.toFixed(2) }</div>
-        return dom
-      }
-    },
-  },
-  {
-    "dataKey": "rps_250",
-    "key": "rps_250",
-    "title": "RPS 250",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_250'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_250'], highlightThreshold, 1)
-  },
-  {
-    "dataKey": "rps_120",
-    "key": "rps_120",
-    "title": "RPS 120",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_120'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_120'], highlightThreshold, 1)
-  },
-  {
-    "dataKey": "rps_60",
-    "key": "rps_60",
-    "title": "RPS 60",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_60'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_60'], highlightThreshold, 1),
-  },
-  {
-    "dataKey": "rps_20",
-    "key": "rps_20",
-    "title": "RPS 20",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_20'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_20'], highlightThreshold, 1),
-  },
-  {
-    "dataKey": "rps_10",
-    "key": "rps_10",
-    "title": "RPS 10",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_10'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_10'], highlightThreshold, 1),
-  },
-   /*{
-    "dataKey": "rps_5",
-    "key": "rps_5",
-    "title": "RPS 5",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_5'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_5'], highlightThreshold, 1),
-  }, */
-  {
-    "dataKey": "rps_mean",
-    "key": "rps_mean",
-    "title": "强度均值",
-    "sortable": true,
-    "width": rpsColumnWidth,
-    "align": "right",
-    "flexGrow": 1,
-    "fixed": false,
-    "cellRenderer": ({ rowData }) => singleNumCellDom(rowData['rps_mean'], highlightThreshold, 1),
-    "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_mean'], highlightThreshold, 1),
-  },
-]
+
 // RPS 数据
 // 原始数据，用于筛选
 let originalData = []
@@ -529,79 +250,6 @@ fetch('/data/price-and-rps.json')
 
 // Filter 相关
 const filterDropdown = ref()
-// 筛选参数
-let filters = [
-  {
-    isOn: false,
-    name: "涨跌幅%",
-    key: "change_pct",
-    min: -Infinity,
-    max: +Infinity
-  },
-  {
-    isOn: false,
-    name: "M10偏离量",
-    key: "m10_offset_pct",
-    min: -Infinity,
-    max: Infinity
-  },
-  {
-    isOn: false,
-    name: "量比",
-    key: "rvol",
-    min: 0,
-    max: Infinity
-  },
-  {
-    isOn: false,
-    name: "RPS_250",
-    key: "rps_250",
-    min: 0,
-    max: 100
-  },
-  {
-    isOn: false,
-    name: "RPS_120",
-    key: "rps_120",
-    min: 0,
-    max: 100
-  },
-  {
-    isOn: false,
-    name: "RPS_60",
-    key: "rps_60",
-    min: 0,
-    max: 100
-  },
-  {
-    isOn: false,
-    name: "RPS_20",
-    key: "rps_20",
-    min: 0,
-    max: 100
-  },
-  {
-    isOn: false,
-    name: "RPS_10",
-    key: "rps_10",
-    min: 0,
-    max: 100
-  },
-  /*{
-    isOn: false,
-    name: "RPS_5",
-    key: "rps_5",
-    min: 0,
-    max: 100
-  },*/
-  {
-    isOn: false,
-    name: "强度均值",
-    key: "rps_mean",
-    min: 0,
-    max: 100
-  }
-]
 // 复制一份用于作为 筛选默认参数
 const filtersDefault = structuredClone(filters)
 // 复制一份用于作为 筛选面板设置参数展示
@@ -664,10 +312,8 @@ function filterPanelVisChange(visible) {
     triangleIconRotateDeg.value = 180
   } else {
     triangleIconRotateDeg.value = 0
-    // console.log("close")
   }
 }
-
 
 
 const viewPortHeight = ref(0)
@@ -761,35 +407,7 @@ onMounted(() => {
       </div>
       <div class="desc">
         <p class="update-time-text text-white-60">LAST UPDATE <span style="white-space: nowrap;">{{ lastUpdateDate }}</span></p>
-        <el-popover
-          placement="bottom-end"
-          :width="500"
-          trigger="click"
-          popper-class="desc-panel"
-          popper-style="overflow: visible;
-                        padding: 0 24px 20px 24px;
-                        background: #363959;
-                        border-radius: 8px;
-                        box-shadow: 0px 4px 24px rgba(24, 25, 31, 0.5)"
-        >
-          <template #reference>
-            <h3 class="desc-title" style="cursor: pointer;">
-              <info theme="outline" size="19" :strokeWidth="3" style="opacity: .5;"/> RPS Screen
-            </h3>
-          </template>
-          <template #default>
-            <img src="/imgs/candlestick_chart.png" width="126" style="margin: -36px 0 0 -17px;">
-            <div class="pop-up-title">全 A 欧奈尔相对强度 (RPS) 选股器</div>
-            <p class="pop-up-text">用于选出<span style="text-decoration: underline;">强度达标且量价齐升的强势股票</span>。剔除了 ST 类和未满 1 年的新股，高亮显示强度达标个股，适用于趋势投资。</p>
-            <p class="pop-up-text" >大周期为必须达标的 RPS250、RPS120、RPS60，小周期为判断短期是否强势的 RPS20、RPS10，RPS5 可用于筛选短期调整较大的个股。</p>
-            <p class="pop-up-text">使用：</p>
-            <ul class="pop-up-text" style="padding-left: 16px;">
-              <li>坚持 RPS 优先一切的原则，至少一个大周期 RPS 达标才有追踪价值；</li>
-              <li>达标阈值 87，基本面亮眼但被错杀的情况，可放宽到 80+；</li>
-              <li>结合大盘和个股所在板块情况、调整是否充分、筹码分布等综合决策；</li>
-            </ul>
-          </template>
-        </el-popover>
+        <DescriptionPopup />
       </div>
     </div>
     <div class="table-wrap" id="section-table">
@@ -891,28 +509,6 @@ onMounted(() => {
           </el-table-column>
         </el-table>
       </div>
-      <!-- <div class="stock-table" :style="{ height: headerRowHeight.reduce((partialSum, a) => partialSum + a, 0)+tableData.length*56 + 'px'}">
-        <el-auto-resizer>
-          <template #default="{ height, width }">
-            <el-table-v2
-              :columns="columns"
-              :data="tableData"
-              :width="width"
-              :height="height"
-              :sort-by="sortState"
-              :row-class="evenRowClass"
-              :header-height="headerRowHeight"
-              :row-height="56"
-              :v-scrollbar-size="0"
-              @column-sort="onSort"
-            >
-            <template #header="props">
-              <customized-header v-bind="props"/>
-            </template>
-            </el-table-v2>  
-          </template>
-        </el-auto-resizer>
-      </div> -->
       <div class="pagination-wrapper" style="display: flex; justify-content: end;">
         <el-pagination 
         background
@@ -1004,19 +600,7 @@ onMounted(() => {
     font-weight: 700;
   }
 }
-.desc-panel {
-  padding: 0 24px 16px 24px;
-  .pop-up-title {
-    margin: 0 0 8px 0;
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-  }
-  .pop-up-text{
-    line-height: 150%;
-    font-size: 14px;
-  }
-}
+
 .stock-table {
   margin: 24px 0;
   border-radius: 8px;
