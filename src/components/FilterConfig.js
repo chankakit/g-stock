@@ -1,5 +1,5 @@
 // 筛选参数
-export let filters = [
+export const defaultFiltersConfig = [
     {
       isOn: false,
       name: "涨跌幅%",

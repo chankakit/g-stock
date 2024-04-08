@@ -3,7 +3,7 @@ import { ref, toRaw, onMounted, computed, watch } from 'vue'
 import { SettingConfig, } from '@icon-park/vue-next'
 import { TableV2SortOrder } from 'element-plus'
 import { columns } from './components/TableColumnConfig.jsx'
-import { filters } from './components/FilterConfig.js'
+import { defaultFiltersConfig } from './components/FilterConfig.js'
 import IndexGraphic from './components/IndexGraphic.vue'
 import StockPopup from './components/StockPopup.vue'
 import DescriptionPopup from './components/DescriptionPopup.vue'
@@ -250,6 +250,7 @@ fetch('/data/price-and-rps.json')
 
 // Filter 相关
 const filterDropdown = ref()
+let filters = defaultFiltersConfig
 // 复制一份用于作为 筛选默认参数
 const filtersDefault = structuredClone(filters)
 // 复制一份用于作为 筛选面板设置参数展示
