@@ -1,7 +1,5 @@
 <script setup>
 // import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Info } from '@icon-park/vue-next'
-
 </script>
 
 <template>
@@ -18,7 +16,7 @@ import { Info } from '@icon-park/vue-next'
     >
         <template #reference>
             <h3 class="desc-title" style="cursor: pointer;">
-                <info theme="outline" size="19" :strokeWidth="3" style="opacity: .5;"/> RPS Screen
+                <img src="/imgs/ic_info.svg"> RPS Screen
             </h3>
         </template>
         <template #default>

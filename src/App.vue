@@ -1,6 +1,5 @@
 <script setup lang='jsx'>
 import { ref, toRaw, onMounted, computed, watch } from 'vue'
-import { SettingConfig, } from '@icon-park/vue-next'
 import { TableV2SortOrder } from 'element-plus'
 import { columns } from './components/TableColumnConfig.jsx'
 import { defaultFiltersConfig } from './components/FilterConfig.js'
@@ -13,17 +12,56 @@ const props = defineEmits({
   stockDialogShow: Boolean,
 })
 
+const dataRoot = 'https://cdn.sanity.io/files/ilbimbym/production/'
 
 // 最后更新时间字段
 const lastUpdateDate = ref('')
 
+// 指数 数据
 const indexData = ref({})
-// 载入 指数 数据
-fetch('/data/sse-index.json')
+
+// RPS 数据
+// 原始数据，用于筛选
+let originalData = []
+// 筛选处理后的数据
+const processedData = ref([])
+// 数量改变时，需要页码复位到第一页
+watch(processedData, () => {
+  currentPage.value = 1
+  pageCount.value = Math.floor(processedData.value.length / pageSize.value) + 1
+})
+
+let jsonFile = {}
+fetch('https://ilbimbym.api.sanity.io/v2022-03-07/data/query/production?query=*%5B_type+%3D%3D+%27temp%27%5D%7B%0A++name%2C%0A++rps%7Basset%7D%2C%0A++sse%7Basset%7D%2C%0A%7D')
   .then((response) => response.json())
   .then((json) => {
-    indexData.value = json
-    lastUpdateDate.value = indexData.value.date.replace(/(\d{4})(\d{2})(\d{2})/g, '$1-$2-$3')
+    jsonFile.rpsFile = json.result[0].rps.asset._ref.split('-')
+    jsonFile.sseFile = json.result[0].sse.asset._ref.split('-')
+
+    // 载入 指数 数据
+    fetch(dataRoot + jsonFile.sseFile[1] + '.json')
+      .then((response) => response.json())
+      .then((json) => {
+        indexData.value = json
+        lastUpdateDate.value = indexData.value.date.replace(/(\d{4})(\d{2})(\d{2})/g, '$1-$2-$3')
+      })
+
+    // 载入 rps 数据
+    fetch(dataRoot + jsonFile.rpsFile[1] + '.json')
+      .then((response) => response.json())
+      .then((json) => {
+        originalData = json  
+        let ps = originalData[Math.floor(originalData.length * Math.random())]
+        // 设置搜索框的 placeholder 文本
+        searchInputPlaceholder.value = ps.company_code + ' / ' + ps.company_abbr + ' / ' + ps.company_pinyin
+        processedData.value = json
+        // 默认按 RPS 60 倒序展示
+        const defaultSortArgs = {
+          key: 'rps_60',
+          order: TableV2SortOrder.DESC
+        }
+        onSort(defaultSortArgs)
+      })
   })
 
 // 搜索框相关
@@ -220,32 +258,7 @@ const filterSort = (sortBy) => {
 }
 
 
-// RPS 数据
-// 原始数据，用于筛选
-let originalData = []
-// 筛选处理后的数据
-const processedData = ref([])
-// 数量改变时，需要页码复位到第一页
-watch(processedData, () => {
-  currentPage.value = 1
-  pageCount.value = Math.floor(processedData.value.length / pageSize.value) + 1
-})
 
-fetch('/data/price-and-rps.json')
-  .then((response) => response.json())
-  .then((json) => {
-    originalData = json  
-    let ps = originalData[Math.floor(originalData.length * Math.random())]
-    // 设置搜索框的 placeholder 文本
-    searchInputPlaceholder.value = ps.company_code + ' / ' + ps.company_abbr + ' / ' + ps.company_pinyin
-    processedData.value = json
-    // 默认按 RPS 60 倒序展示
-    const defaultSortArgs = {
-      key: 'rps_60',
-      order: TableV2SortOrder.DESC
-    }
-    onSort(defaultSortArgs)
-  })
 
 
 // Filter 相关
@@ -415,7 +428,7 @@ onMounted(() => {
       <div class="filter-wrap flex-h-center">
         <el-dropdown trigger="click" ref="filterDropdown" placement="bottom-start" @visible-change="filterPanelVisChange">
           <el-button size="large" type="primary" >
-            <setting-config class="btn-icon" theme="outline" :strokeWidth="5"/>
+            <img class="btn-icon" src="/imgs/ic_filter_setting.svg" width="14"/>
             <span>筛选</span>
             <div class="drop-down-triangle" :style="{ 'transform': 'rotate(' + triangleIconRotateDeg + 'deg)' }">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
