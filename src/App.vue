@@ -12,7 +12,7 @@ const props = defineEmits({
   stockDialogShow: Boolean,
 })
 
-const dataRoot = 'https://cdn.sanity.io/files/ilbimbym/production/'
+const sanityApi = 'https://ilbimbym.api.sanity.io/v2022-03-07/data/query/production?query=*%5B_type+%3D%3D+%27temp%27%5D%7Bname%2C%27rps%27%3A+rps%7B%27file_url%27%3Aasset-%3Eurl%7D%2C%27sse%27%3A+sse%7B%27file_url%27%3Aasset-%3Eurl%7D%7D'
 
 // 最后更新时间字段
 const lastUpdateDate = ref('')
@@ -32,14 +32,13 @@ watch(processedData, () => {
 })
 
 let jsonFile = {}
-fetch('https://ilbimbym.api.sanity.io/v2022-03-07/data/query/production?query=*%5B_type+%3D%3D+%27temp%27%5D%7B%0A++name%2C%0A++rps%7Basset%7D%2C%0A++sse%7Basset%7D%2C%0A%7D')
+fetch(sanityApi)
   .then((response) => response.json())
   .then((json) => {
-    jsonFile.rpsFile = json.result[0].rps.asset._ref.split('-')
-    jsonFile.sseFile = json.result[0].sse.asset._ref.split('-')
+    jsonFile = json.result[0]
 
     // 载入 指数 数据
-    fetch(dataRoot + jsonFile.sseFile[1] + '.json')
+    fetch(jsonFile.sse.file_url)
       .then((response) => response.json())
       .then((json) => {
         indexData.value = json
@@ -47,7 +46,7 @@ fetch('https://ilbimbym.api.sanity.io/v2022-03-07/data/query/production?query=*%
       })
 
     // 载入 rps 数据
-    fetch(dataRoot + jsonFile.rpsFile[1] + '.json')
+    fetch(jsonFile.rps.file_url)
       .then((response) => response.json())
       .then((json) => {
         originalData = json  
