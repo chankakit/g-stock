@@ -47,7 +47,8 @@ onUnmounted(() => {
           <span>{{ stock.change_pct>0 ? '+' : '' }}{{ stock.change_pct.toFixed(2) }}%</span>
           <span style="margin-left: 8px;">{{ stock.change_pct>0 ? '+' : '' }}{{ stock.change_abs.toFixed(2) }}</span>
         </div>
-        <div class="mid-num rvol" :class="{'highlight': stock.rvol>=2.5}"><span style="font-size: 18px;">量比</span> {{ stock.rvol.toFixed(2) }}</div>
+        <div class="mid-num rvol" :class="{'highlight': stock.rvol>=2.5}"><span style="font-size: 18px;">MA10 偏离</span> {{ stock.m10_offset_pct>0 ? '+' : '' }}{{ stock.m10_offset_pct.toFixed(2) }}%</div>
+        <div class="mid-num rvol" :class="{'highlight': stock.rvol>=2.5}" style="margin-left: 20px;"><span style="font-size: 18px;">量比</span> {{ stock.rvol.toFixed(2) }}</div>
       </div>
       <ul class="rps-list flex-h-center">
         <li class="rps-card"
@@ -87,7 +88,7 @@ onUnmounted(() => {
   position: relative;
   padding: 32px 32px 24px 32px;
   width: 60%;
-  min-width: 748px;
+  min-width: 790px;
   border-radius: 10px;
   background: rgba(40, 42, 63, 0.7);
   backdrop-filter: blur(16px);
@@ -144,20 +145,25 @@ onUnmounted(() => {
     border-left: 2px rgba(255, 255, 255, 0.3) solid;
   }
   .rps-card {
+    box-sizing: border-box;
     flex: 1 1 auto;
     width: 16%;
+    min-width: 105px;
     padding: 12px 16px 20px 16px;
     border-radius: 6px;
     font-weight: 700;
     background-color: #282A3F;
     box-shadow: 0px 4px 20px rgb(20 26 42 / 10%);
   }
+  .rps-card:first-child {
+    background: #34364b;
+  }
   .rps-key {
     margin-bottom: 6px;
-    font-size: 16px;
+    font-size: 14px;
   }
   .rps-value {
-    font-size: 34px;
+    font-size: 28px;
   }
 }
 </style>
