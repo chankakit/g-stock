@@ -1,5 +1,4 @@
 <script setup>
-import { ref, provide, computed, onMounted } from 'vue'
 import { credits } from '../assets/credits.js'
 
 </script>

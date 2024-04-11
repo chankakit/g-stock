@@ -9,6 +9,7 @@ import DescriptionPopup from './components/DescriptionPopup.vue'
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 import { dataApiUrl } from './assets/api.js'
+import { dynamicFavicon } from './dynamic-favicon.js'
 
 const props = defineEmits({
   stockDialogShow: Boolean,
@@ -42,6 +43,7 @@ fetch(dataApiUrl)
       .then((json) => {
         indexData.value = json
         lastUpdateDate.value = indexData.value.date.replace(/(\d{4})(\d{2})(\d{2})/g, '$1-$2-$3')
+        dynamicFavicon(indexData.value.change_pct)
       })
 
     // 载入 rps 数据
