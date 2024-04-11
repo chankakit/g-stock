@@ -6,13 +6,13 @@ import { defaultFiltersConfig } from './components/FilterConfig.js'
 import IndexGraphic from './components/IndexGraphic.vue'
 import StockPopup from './components/StockPopup.vue'
 import DescriptionPopup from './components/DescriptionPopup.vue'
-
+import Header from './components/Header.vue'
+import Footer from './components/Footer.vue'
+import { dataApiUrl } from './assets/api.js'
 
 const props = defineEmits({
   stockDialogShow: Boolean,
 })
-
-const sanityApi = 'https://ilbimbym.apicdn.sanity.io/v2022-03-07/data/query/production?query=*%5B_type+%3D%3D+%27temp%27%5D%7Bname%2C%27rps%27%3A+rps%7B%27file_url%27%3Aasset-%3Eurl%7D%2C%27sse%27%3A+sse%7B%27file_url%27%3Aasset-%3Eurl%7D%7D'
 
 // 最后更新时间字段
 const lastUpdateDate = ref('')
@@ -30,9 +30,8 @@ watch(processedData, () => {
   currentPage.value = 1
   pageCount.value = Math.floor(processedData.value.length / pageSize.value) + 1
 })
-
 let jsonFile = {}
-fetch(sanityApi)
+fetch(dataApiUrl)
   .then((response) => response.json())
   .then((json) => {
     jsonFile = json.result[0]
@@ -257,9 +256,6 @@ const filterSort = (sortBy) => {
 }
 
 
-
-
-
 // Filter 相关
 const filterDropdown = ref()
 let filters = defaultFiltersConfig
@@ -366,15 +362,6 @@ function keydownHandler(e) {
   }
 }
 
-const credits = ref([
-  {
-    "icon": "wechat",
-    "name": "jer",
-    "desc": "oasisFM",
-    "link": "",
-    "qrcode": ""
-  },])
-
 function creditClickHandler(c) {
   if(c.icon === 'wechat') {
     c.showClickStatus = true
@@ -394,15 +381,7 @@ onMounted(() => {
   <Transition name="fade">
     <StockPopup v-model:visable="showStockDialog" :stock="dialogStock" v-if="showStockDialog"></StockPopup>
   </Transition>
-
-  <header class="flex-h-center">
-    <a href="/">
-      <img src="/imgs/logo.svg" alt="logo">
-    </a>
-    <!-- <el-button type="primary" round @click="downloadXlsx">
-      <download class="btn-icon" theme="outline" :strokeWidth="5"/>下载全表
-    </el-button> -->
-  </header>
+  <Header />
   <div class="content-wrap content-margin">
     <div class="overview-wrap flex-h-center">
       <div class="overview" v-if="indexData.graphic_data">
@@ -533,29 +512,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <footer>
-    <div class="footer-pattern"></div>
-    <div class="flex-h-center content-margin" style="flex: 1">
-      <div class="flex-h-center" style="margin-top: -4px;">
-        <img src="/imgs/logo.svg" alt="logo">
-        <p class="text-s" style="opacity: .4;">声明：本工具数据仅供参考，不作为任何投资建议。投资有风险，抄顶需谨慎。</p>
-      </div>
-      <div class="credits">
-        <a class="credit" v-for="c in credits" @click="creditClickHandler(c)">
-          <div class="credit-icon">
-            <img :src="'/imgs/soical-media-icon/' + c.icon + '.svg'" style="width: 16px">
-          </div>
-          <div class="credit-info">
-            <div class="credit-name">{{ c.name }}</div>
-            <div class="credit-desc">{{ c.desc }}</div>
-            <Transition name="slide-up" mode="out-in">
-              <div class="credit-tip" v-if="c.showClickStatus">微信号已复制</div>
-            </Transition>
-          </div>
-        </a>
-      </div>
-    </div>
-  </footer>
+  <Footer />
 </template>
 
 <style lang="scss">
@@ -708,66 +665,5 @@ onMounted(() => {
 }
 .search-list-item-code {
   margin-right: 8px;
-}
-
-footer {
-  margin-top: 48px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  height: 96px;
-  background: linear-gradient(180deg, #1B1C24 0%, #1F2029 100%);
-  .text-s {
-    margin: 19px 0 5px 16px;
-  }
-  .credits {
-    display: flex;
-    gap: 24px;   
-    .credit {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      color: white;
-      opacity: .7;
-      cursor: pointer;
-    }
-    .credit:hover {
-      opacity: 1;
-    }
-    .credit-icon {
-      height: 16px;
-    }
-    .credit-name {
-      line-height: 14px;
-      font-size: 14px;
-      font-weight: 550;
-    }
-    .credit-desc {
-      margin: 4px 0 0 -1px;
-      line-height: 12px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.7);
-    }
-    .credit-tip {
-      position: absolute;
-      margin: -60px 0 0 -34px;
-      padding: 6px 8px;
-      line-height: 12px;
-      font-size: 12px;
-      border-radius: 4px;
-      background-color: #313453;
-    }
-  }
-}
-.footer-pattern {
-  width: 100%;
-  height: 8px;
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent 5px,
-    transparent ,
-    rgba(white, .08) 10px,
-    rgba(white, .08) 15px
-  );
 }
 </style>
