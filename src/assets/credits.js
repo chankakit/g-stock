@@ -6,4 +6,11 @@ export const credits = [
     "link": "",
     "qrcode": ""
   },
+  {
+    "icon": "dribbble",
+    "name": "kakit",
+    "desc": "dribbble.com/kakit",
+    "link": "https://dribbble.com/kakit",
+    "qrcode": ""
+  }
 ]

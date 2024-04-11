@@ -38,7 +38,7 @@ footer {
   height: 96px;
   background: linear-gradient(180deg, #1B1C24 0%, #1F2029 100%);
   .text-s {
-    margin: 19px 0 5px 16px;
+    margin: 19px 0 0 16px;
   }
   .credits {
     display: flex;
