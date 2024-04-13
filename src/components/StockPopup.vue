@@ -47,7 +47,7 @@ onUnmounted(() => {
           <span>{{ stock.change_pct>0 ? '+' : '' }}{{ stock.change_pct.toFixed(2) }}%</span>
           <span style="margin-left: 8px;">{{ stock.change_pct>0 ? '+' : '' }}{{ stock.change_abs.toFixed(2) }}</span>
         </div>
-        <div class="mid-num rvol" :class="{'highlight': stock.rvol>=2.5}"><span style="font-size: 18px;">MA10 偏离</span> {{ stock.m10_offset_pct>0 ? '+' : '' }}{{ stock.m10_offset_pct.toFixed(2) }}%</div>
+        <div class="mid-num rvol"><span style="font-size: 18px;">MA10 偏离</span> {{ stock.m10_offset_pct>0 ? '+' : '' }}{{ stock.m10_offset_pct.toFixed(2) }}%</div>
         <div class="mid-num rvol" :class="{'highlight': stock.rvol>=2.5}" style="margin-left: 20px;"><span style="font-size: 18px;">量比</span> {{ stock.rvol.toFixed(2) }}</div>
       </div>
       <ul class="rps-list flex-h-center">

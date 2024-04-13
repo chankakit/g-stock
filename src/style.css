@@ -165,3 +165,7 @@ a:hover {
     margin: 0 40px;
   }
 }
+
+.el-table--enable-row-transition .el-table__body td.el-table__cell {
+  transition: none !important ;
+}

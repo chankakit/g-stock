@@ -26,7 +26,7 @@ export const columns = [
     "fixed": true,
     "cellRendererV1": (rowData) => {
       let dom = 
-      <div>
+      <div style={"cursor: pointer;"}>
         <div class='cell-main-text'>{ rowData.company_abbr }</div>
         <div class='cell-tip-text' style='opacity: .5; text-transform: uppercase;'>{ rowData.company_code }.{ (rowData.bk).substring(0,2) }</div>
       </div>
