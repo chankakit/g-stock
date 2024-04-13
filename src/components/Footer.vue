@@ -7,7 +7,7 @@ import { credits } from '../assets/credits.js'
     <footer>
         <div class="footer-pattern"></div>
         <div class="flex-h-center content-margin" style="flex: 1">
-            <div class="flex-h-center" style="margin-top: -4px;">
+            <div class="flex-h-center website-desc">
                 <img src="/imgs/logo.svg" alt="logo">
                 <p class="text-s" style="opacity: .4;">声明：本工具数据仅供参考，不作为任何投资建议。投资有风险，抄顶需谨慎。</p>
             </div>
@@ -30,6 +30,7 @@ import { credits } from '../assets/credits.js'
 </template>
 
 <style lang="scss" scoped>
+$breakPoint-1: 600px;
 footer {
   margin-top: 48px;
   width: 100%;
@@ -37,12 +38,32 @@ footer {
   flex-direction: column;
   height: 96px;
   background: linear-gradient(180deg, #1B1C24 0%, #1F2029 100%);
+
+  @media only screen and (max-width: $breakPoint-1) {
+    .flex-h-center {
+      flex-wrap: wrap;
+    }
+  }
+  .website-desc {
+    margin-top: -4px;
+    @media only screen and (max-width: $breakPoint-1) {
+      margin-top: 0;
+    }
+  }
+  
   .text-s {
     margin: 19px 0 0 16px;
+    line-height: 1.5;
+    @media only screen and (max-width: $breakPoint-1) {
+      margin: 16px 0;
+    }
   }
   .credits {
     display: flex;
-    gap: 24px;   
+    gap: 24px;
+    @media only screen and (max-width: $breakPoint-1) {
+      margin: 0 0 32px 0;
+    } 
     .credit {
       display: flex;
       gap: 8px;

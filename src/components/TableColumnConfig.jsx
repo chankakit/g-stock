@@ -39,7 +39,7 @@ export const columns = [
     "title": "收盘",
     "width": 100,
     "align": "right",
-    "fixed": true,
+    "fixed": false,
     "cellRendererV1": (rowData) => <div class='cell-main-text'>{ rowData.close === '停牌' ? '停牌' : rowData.close.toFixed(2) }</div>,
   },
   {
@@ -52,7 +52,7 @@ export const columns = [
     "align": "right",
     "flexGrow": 1,
     "sortable": true,
-    "fixed": true,
+    "fixed": false,
     "headerCellRenderer": ({ column }) => 
       <div>
         <div class="el-table-v2__header-cell-text">{column.title}</div>
@@ -90,7 +90,7 @@ export const columns = [
     "align": "right",
     "flexGrow": 1,
     "sortable": true,
-    "fixed": true,
+    "fixed": false,
     "headerCellRenderer": ({ column }) => 
       <div>
         <div class="el-table-v2__header-cell-text">{column.title}</div>
@@ -126,7 +126,7 @@ export const columns = [
     "width": 90,
     "align": "right",
     "flexGrow": 1,
-    "fixed": true,
+    "fixed": false,
     // "headerCellRenderer": ({ column }) => <div class="el-table-v2__header-cell-text custom-cell" style="border-right: 1.5px solid rgba(0,0,0,.2);">{column.title}</div>,
     "cellRendererV1": (rowData) => {
       let domClass = 'cell-main-text '

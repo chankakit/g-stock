@@ -46,10 +46,17 @@ header {
   line-height: 56px;
   font-size: 56px;
   font-weight: 700;
+  @media only screen and (max-width: 600px) {
+    margin-right: 8px;
+    font-size: 48px;
+  }
 }
 .num-m {
   font-size: 28px;
   font-weight: 700;
+  @media only screen and (max-width: 600px) {
+    font-size: 22px;
+  }
 }
 .text-white-60 {
   color: rgba(255,255,255, .6);
@@ -57,6 +64,9 @@ header {
 .content-margin {
   margin: 0 80px;
   transition: margin 0.3s ease-in-out;
+}
+.flex {
+  display: flex;
 }
 .flex-h-center {
   display: flex;
@@ -107,7 +117,7 @@ a:hover {
   border-radius: 200px;
 }
 .drop-down-triangle {
-  margin: 0 0 0 24px;
+  margin-left: 12px;
   transition: transform .4s ease-in-out;
 }
 .title-row {
@@ -163,6 +173,14 @@ a:hover {
   }
   .content-margin {
     margin: 0 40px;
+  }
+}
+@media only screen and (max-width: 640px) {
+  header {
+    padding: 0 24px;
+  }
+  .content-margin {
+    margin: 0 24px;
   }
 }
 
