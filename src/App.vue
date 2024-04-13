@@ -15,6 +15,9 @@ const props = defineEmits({
   stockDialogShow: Boolean,
 })
 
+const viewPortHeight = ref(window.innerHeight)
+const viewPortWidth = ref(window.innerWidth)
+
 // 最后更新时间字段
 const lastUpdateDate = ref('')
 
@@ -63,6 +66,7 @@ fetch(dataApiUrl)
         onSort(defaultSortArgs)
       })
   })
+
 
 // 搜索框相关
 // 搜索字串
@@ -131,6 +135,19 @@ watch(pageSize, () => {
 })
 watch(currentPage, () => {
   stockTableV1.value.setScrollTop(0)
+})
+function changePaginationLayout() {
+  if(viewPortWidth.value > 640) {
+    return "total, sizes, prev, pager, next"
+  } else if(viewPortWidth.value > 500) {
+    return "total, prev, pager, next"
+  } else {
+    return "total, prev, jumper,next"
+  }
+}
+const paginationLayout = ref(changePaginationLayout())
+watch(viewPortWidth, () => {
+  paginationLayout.value = changePaginationLayout()
 })
 const arrowKeyChangePage = (e) => {
   console.log(e)
@@ -326,13 +343,11 @@ function filterPanelVisChange(visible) {
   }
 }
 
-
-const viewPortHeight = ref(0)
-
 // 控制表格动态高度
 window.addEventListener('resize', resizeHandler)
 function resizeHandler(e) {
   viewPortHeight.value = e.target.innerHeight
+  viewPortWidth.value = e.target.innerWidth
 }
 const tableHeight = computed(() => {
   // 64 是筛选栏高度 + 间距
@@ -392,7 +407,7 @@ onMounted(() => {
   <div class="content-wrap content-margin">
     <div class="overview-wrap flex-h-center">
       <div class="overview" v-if="indexData.graphic_data">
-        <div class="graphic">
+        <div class="graphic" :style="{width: viewPortWidth > 400 ? '400px' : (viewPortWidth-48)+'px'}">
           <IndexGraphic 
             :changePct="indexData.change_pct"
             :graphicData="indexData.graphic_data">
@@ -406,7 +421,7 @@ onMounted(() => {
       </div>
       <div class="desc">
         <p class="update-time-text text-white-60">LAST UPDATE <span style="white-space: nowrap;">{{ lastUpdateDate }}</span></p>
-        <DescriptionPopup />
+        <DescriptionPopup v-if="viewPortWidth > 600" />
       </div>
     </div>
     <div class="table-wrap" id="section-table">
@@ -454,7 +469,7 @@ onMounted(() => {
           :placeholder="searchInputPlaceholder"
           @select="handleSelect"
           @keyup.enter="handleEnter(searchInputDiv.suggestions)"
-          style="width: 320px;"
+          style="width: 240px;"
         >
           <template #default="{ item }">
             <div v-if="item === -1">NO DATA</div>
@@ -511,7 +526,8 @@ onMounted(() => {
       <div class="pagination-wrapper" style="display: flex; justify-content: end;">
         <el-pagination 
         background
-        layout="total, sizes, prev, pager, next"
+        :layout="paginationLayout"
+        :pager-count="5"
         v-model:current-page="currentPage"
         :total="processedData.length"
         v-model:page-size="pageSize"
@@ -549,6 +565,7 @@ onMounted(() => {
 
 .overview-wrap {
   margin: 64px 0 32px 0;
+  flex-wrap: wrap;
   align-items: flex-end;
 }
 .index-title {
@@ -569,7 +586,7 @@ onMounted(() => {
   margin-bottom: 5px;
   text-align: right;
   .update-time-text {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
   }
   .desc-title {
@@ -627,7 +644,7 @@ onMounted(() => {
 }
 
 .filter-panel {
-  width: 352px;
+  width: 320px;
   font-weight: 700;
   background-color: #363959;
   .disabled {
@@ -650,7 +667,7 @@ onMounted(() => {
     line-height: 16px;
   }
   .filter-input {
-    width: 64px;
+    width: 56px;
     input {
       text-align: center;
     }
