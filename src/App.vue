@@ -374,6 +374,11 @@ function creditClickHandler(c) {
   }
 }
 
+function rowClick(rowData) {
+  dialogStock.value = rowData
+  showStockDialog.value = true
+}
+
 onMounted(() => {
   viewPortHeight.value = window.innerHeight
 })
@@ -474,7 +479,7 @@ onMounted(() => {
             :fixed="col.fixed"
             :min-width="col.minWidth">
             <template #default="scope">
-              <component :is="col.cellRendererV1(scope.row)"/>
+              <component :is="col.cellRendererV1(scope.row)" @click="rowClick(scope.row)" />
             </template>
             <template #header="scope">
               <div>
