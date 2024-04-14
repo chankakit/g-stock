@@ -1,11 +1,14 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import SharePopup from './share-card/SharePopup.vue';
 
 const props = defineProps({
   stock: Object,
   visable: Boolean,
+  date: String,
 })
 
+const showShareDialog = ref(true)
 const emit = defineEmits(['update:visable'])
 
 const stockChangeNumClass = computed(() => ({
@@ -29,7 +32,12 @@ onUnmounted(() => {
 <template>
   <div class="overlay">
     <div class="modal" @click="$emit('update:visable', false)"></div>
-    <div class="stock-detail">
+    <SharePopup 
+      v-model:visable="showShareDialog"
+      :stock="stock" :date="date"
+      v-if="showShareDialog"
+    />
+    <!-- <div class="stock-detail">
       <div class="btn-close" @click="$emit('update:visable', false)">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="white" xmlns="http://www.w3.org/2000/svg">
           <circle cx="10" cy="10" r="8"  fill-opacity=".01"/>
@@ -68,7 +76,7 @@ onUnmounted(() => {
           <div class="rps-value" :class="{highlight: stock['rps_mean']>=87}">{{ stock['rps_mean'].toFixed(2) }}</div>
         </li>
       </ul>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -94,80 +102,80 @@ onUnmounted(() => {
   bottom: 0;
 }
 
-.stock-detail {
-  position: relative;
-  padding: 24px;
-  width: 60%;
-  border-radius: 10px;
-  background: rgba(40, 42, 63, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0px 18px 46px rgba(9, 9, 23, 0.28);
-  z-index: 100;
-  .btn-close {
-    position: absolute;
-    box-sizing: border-box;
-    width: 28px;
-    height: 28px;
-    padding: 4px;
-    top: 18px;
-    right: 18px;
-    cursor: pointer;
-    opacity: .6;
-    transition: opacity .3s ease-in-out;
-  }
-  .btn-close:hover {
-    opacity: 7;
-  }
-  .stock-name {
-    margin-bottom: 8px;
-    font-size: 32px;
-  }
-  .stock-code {
-    font-size: 16px;
-    font-weight: 500;
-    opacity: .6;
-  }
-  .stock-latest-price {
-    margin-top: 16px;
-  }
-  .change {
-    margin: 0 16px;
-  }
-  .big-num {
-    font-size: 28px;
-    font-weight: 550;
-  }
-  .mid-num {
-    font-size: 20px;
-  }
-  .rps-list {
-    gap: 8px;
-    list-style: none;
-    margin-top: 24px;
-    flex-wrap: wrap;
-  }
-  .rps-card {
-    box-sizing: border-box;
-    flex: 1;
-    padding: 12px 16px 20px 16px;
-    border-radius: 6px;
-    font-weight: 700;
-    background-color: #282A3F;
-    box-shadow: 0px 4px 20px rgb(20 26 42 / 10%);
-  }
-  .rps-key {
-    margin-bottom: 6px;
-    font-size: 14px;
-  }
-  .rps-value {
-    font-size: 28px;
-  }
-  @media only screen and (max-width: 600px) {
-    width: 72%;
-    .mid-num {
-      font-size: 16px;
-    }
-  }
-}
+// .stock-detail {
+//   position: relative;
+//   padding: 24px;
+//   width: 60%;
+//   border-radius: 10px;
+//   background: rgba(40, 42, 63, 0.7);
+//   backdrop-filter: blur(16px);
+//   -webkit-backdrop-filter: blur(16px);
+//   box-shadow: 0px 18px 46px rgba(9, 9, 23, 0.28);
+//   z-index: 100;
+//   .btn-close {
+//     position: absolute;
+//     box-sizing: border-box;
+//     width: 28px;
+//     height: 28px;
+//     padding: 4px;
+//     top: 18px;
+//     right: 18px;
+//     cursor: pointer;
+//     opacity: .6;
+//     transition: opacity .3s ease-in-out;
+//   }
+//   .btn-close:hover {
+//     opacity: 7;
+//   }
+//   .stock-name {
+//     margin-bottom: 8px;
+//     font-size: 32px;
+//   }
+//   .stock-code {
+//     font-size: 16px;
+//     font-weight: 500;
+//     opacity: .6;
+//   }
+//   .stock-latest-price {
+//     margin-top: 16px;
+//   }
+//   .change {
+//     margin: 0 16px;
+//   }
+//   .big-num {
+//     font-size: 28px;
+//     font-weight: 550;
+//   }
+//   .mid-num {
+//     font-size: 20px;
+//   }
+//   .rps-list {
+//     gap: 8px;
+//     list-style: none;
+//     margin-top: 24px;
+//     flex-wrap: wrap;
+//   }
+//   .rps-card {
+//     box-sizing: border-box;
+//     flex: 1;
+//     padding: 12px 16px 20px 16px;
+//     border-radius: 6px;
+//     font-weight: 700;
+//     background-color: #282A3F;
+//     box-shadow: 0px 4px 20px rgb(20 26 42 / 10%);
+//   }
+//   .rps-key {
+//     margin-bottom: 6px;
+//     font-size: 14px;
+//   }
+//   .rps-value {
+//     font-size: 28px;
+//   }
+//   @media only screen and (max-width: 600px) {
+//     width: 72%;
+//     .mid-num {
+//       font-size: 16px;
+//     }
+//   }
+// }
 </style>

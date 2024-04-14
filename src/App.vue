@@ -401,7 +401,11 @@ onMounted(() => {
 
 <template>
   <Transition name="fade">
-    <StockPopup v-model:visable="showStockDialog" :stock="dialogStock" v-if="showStockDialog"></StockPopup>
+    <StockPopup 
+      v-model:visable="showStockDialog"
+      :stock="dialogStock"
+      :date="lastUpdateDate"
+      v-if="showStockDialog"></StockPopup>
   </Transition>
   <Header />
   <div class="content-wrap content-margin">
