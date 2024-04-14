@@ -17,7 +17,12 @@ function getCurrentStyleIndexFromCookie() {
   return cookieObj
 }
 
-const cookieObj = getCurrentStyleIndexFromCookie()
+const currentStyleIndex = ref(0)
+if(getCurrentStyleIndexFromCookie().currentStyleIndex) {
+  currentStyleIndex.value = Number(getCurrentStyleIndexFromCookie().currentStyleIndex)
+} else {
+  document.cookie =`currentStyleIndex=0`;
+}
 
 const props = defineProps({
   stock: Object,
@@ -37,7 +42,7 @@ const shareImgStylesList = [
   'ShareCardReceiptsL',
   'ShareCardTE'
 ]
-const currentStyleIndex = ref(Number(cookieObj.currentStyleIndex))
+
 const currentStyle = ref(shareImgStylesList[currentStyleIndex.value])
 
 // 传入数字 1 代表下一个，传入数字 -1 代表上一个
