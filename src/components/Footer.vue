@@ -1,6 +1,19 @@
 <script setup>
+import { ref } from 'vue'
 import { credits } from '../assets/credits.js'
 
+const creditsCopy = ref(credits)
+
+function creditClickHandler(c) {
+  if(c.icon === 'wechat') {
+    c.showClickStatus = true
+    setTimeout(function() { c.showClickStatus = false }, 2500);
+    console.log(c.showClickStatus)
+    navigator.clipboard.writeText(c.desc);
+  } else {
+    if(c.link != '') { window.open(c.link, '_blank') }
+  }
+}
 </script>
 
 <template>
@@ -12,7 +25,7 @@ import { credits } from '../assets/credits.js'
                 <p class="text-s" style="opacity: .4;">声明：本工具数据仅供参考，不作为任何投资建议。投资有风险，抄顶需谨慎。</p>
             </div>
             <div class="credits">
-                <a class="credit" v-for="c in credits" @click="creditClickHandler(c)">
+                <a class="credit" v-for="c in creditsCopy" @click="creditClickHandler(c)">
                     <div class="credit-icon">
                         <img :src="'/imgs/soical-media-icon/' + c.icon + '.svg'" style="width: 16px">
                     </div>
@@ -20,7 +33,7 @@ import { credits } from '../assets/credits.js'
                         <div class="credit-name">{{ c.name }}</div>
                         <div class="credit-desc">{{ c.desc }}</div>
                         <Transition name="slide-up" mode="out-in">
-                            <div class="credit-tip" v-if="c.showClickStatus">微信号已复制</div>
+                          <div class="credit-tip" v-if="c.showClickStatus">微信号已复制</div>
                         </Transition>
                     </div>
                 </a>

@@ -379,16 +379,6 @@ function keydownHandler(e) {
   }
 }
 
-function creditClickHandler(c) {
-  if(c.icon === 'wechat') {
-    c.showClickStatus = true
-    setTimeout(function() { c.showClickStatus = false }, 2500);
-    navigator.clipboard.writeText(c.desc);
-  } else {
-    if(c.link != '') { window.open(c.link, '_blank') }
-  }
-}
-
 function rowClick(rowData) {
   dialogStock.value = rowData
   showStockDialog.value = true
