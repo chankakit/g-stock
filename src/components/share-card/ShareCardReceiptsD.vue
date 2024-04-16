@@ -59,7 +59,10 @@ onMounted(() => {
         <div class="flex-v-center text-tiny t-med data-list" style="padding-right: 12px;">
           <div class="stock-data-box">
             <div class="data-key">量比</div>
-            <div class="text-med">{{ stock.rvol.toFixed(2) }}</div>
+            <div class="text-med">
+              <span v-if="stock.rvol === '停牌'">{{ stock.rvol }}</span>
+              <span  v-else>{{ stock.rvol.toFixed(2) }}</span>
+            </div>
           </div>
           <div class="h-line"></div>
           <div class="stock-data-box">
@@ -72,7 +75,7 @@ onMounted(() => {
             <div class="text-med">
               {{ stock.m10_offset_pct > 0 ? '+' : '' }}
               {{ stock.m10_offset_pct.toFixed(2) }}%
-              <div style="font-size: 14px;">( {{ (stock.close - stock.m10) > 0 ? '+' : '' }} {{ (stock.close - stock.m10).toFixed(2) }} )</div>
+              <div style="font-size: 14px;">( {{ (stock.close - stock.m10) > 0 ? '+' : '' }} {{ (stock.m10 * stock.m10_offset_pct / 100).toFixed(2) }} )</div>
             </div>
           </div>
         </div>

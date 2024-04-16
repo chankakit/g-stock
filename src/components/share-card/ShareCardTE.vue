@@ -67,7 +67,7 @@ onMounted(() => {
         <div class="flex regular-data-row">
           <div class="data-box">
             <div class="data-key">CLOSE</div>
-            <div v-if="stock.close === '停牌'" class="text-med">{{ stock.close }}</div>
+            <div v-if="stock.close === '停牌'" class="text-med">停牌</div>
             <div class="text-med" v-else>{{ stock.close.toFixed(2) }}</div>
           </div>
           <div class="data-box">
@@ -76,14 +76,18 @@ onMounted(() => {
           </div>
           <div class="data-box">
             <div class="data-key">RVOL</div>
-            <div class="text-med" :class="{ 'highlight': stock.rvol >= 2.5 }">{{stock.rvol.toFixed(2) }}</div>
+            <div class="text-med" v-if="stock.rvol === '停牌'">停牌</div>
+            <div class="text-med" :class="{ 'highlight': stock.rvol >= 2.5 }" v-else>{{stock.rvol.toFixed(2) }}</div>
           </div>
         </div>
         
         <div class="flex regular-data-row">
           <div class="data-box" style="flex:none; width: 108px;">
             <div class="data-key">CHANGE</div>
-            <div :class="numColor" class="">
+            <div :class="numColor" v-if="stock.close === '停牌'">
+              <div class="text-med">停牌</div>
+            </div>
+            <div :class="numColor" v-else>
               <div class="text-med">{{ stock.change_pct > 0 ? '+' : '' }}{{ stock.change_abs.toFixed(2) }}</div>
               <div class="text-tiny">{{ stock.change_pct > 0 ? '+' : '' }}{{ stock.change_pct.toFixed(2) }}%</div>
             </div>
@@ -91,7 +95,7 @@ onMounted(() => {
           <div class="data-box">
             <div class="data-key">CLOSE-MA[10]_DIFF</div>
             <div class="">
-              <div class="text-med">{{ (stock.close - stock.m10)>0? '+' : '' }}{{ (stock.close - stock.m10).toFixed(2) }}</div>
+              <div class="text-med">{{ (stock.close - stock.m10)>0? '+' : '' }}{{ (stock.m10 * stock.m10_offset_pct / 100).toFixed(2) }}</div>
               <div class="text-tiny">{{ stock.m10_offset_pct > 0 ? '+' : '' }}{{ stock.m10_offset_pct.toFixed(2) }}%</div>
             </div>
           </div>
