@@ -92,7 +92,7 @@ onMounted(() => {
       <div class="flex-h-center btn-general btn-save" style="gap: 6px;"
         @click="saveImage(stock.company_code + '_' + date.replaceAll('-', '') + '_rps')"
       >
-        <img src="/imgs/share-card/ic-save.svg"> {{ currentStyle.replace('ShareCard', '') }}
+        <img src="/imgs/share-card/ic-save.svg"> 保存图片
       </div>
       <div class="flex-h-center btn-change btn-general" :class="{ 'disabled': currentStyleIndex > (shareImgStylesList.length-2) }"
         @click="changeStyle(1)">

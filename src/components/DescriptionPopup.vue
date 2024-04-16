@@ -16,7 +16,7 @@
     >
         <template #reference>
             <h3 class="desc-title" style="cursor: pointer;">
-                <img src="/imgs/ic_info.svg"> RPS Screen
+                <img src="/imgs/ic_info.svg"> RPS 选股说明
             </h3>
         </template>
         <template #default>

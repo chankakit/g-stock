@@ -408,13 +408,13 @@ onMounted(() => {
           </IndexGraphic>
         </div>
         <div class="graphic-text">
-          <h4 class="index-title text-white-60">SSE COMPOSITE INDEX</h4>
+          <h4 class="index-title text-white-60">上证综合指数</h4>
           <span class="num-l" :class="{ red: indexData.change_pct>0, green: indexData.change_pct<0  }">{{ indexData.close.toFixed(2) }}</span>
           <span class="num-m" :class="{ red: indexData.change_pct>0, green: indexData.change_pct<0  }">{{ indexData.change_pct>0 ? '+' : '' }}{{ indexData.change_pct.toFixed(2) }}%</span>
         </div>
       </div>
       <div class="desc">
-        <p class="update-time-text text-white-60">LAST UPDATE <span style="white-space: nowrap;">{{ lastUpdateDate }}</span></p>
+        <p class="update-time-text text-white-60">数据更新日期： <span style="white-space: nowrap;">{{ lastUpdateDate }}</span></p>
         <DescriptionPopup v-if="viewPortWidth > 600" />
       </div>
     </div>
