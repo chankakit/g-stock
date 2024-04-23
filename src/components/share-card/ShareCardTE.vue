@@ -336,12 +336,18 @@ function drawCanvas() {
 
       // 创建线性渐变
       ctx.globalCompositeOperation = 'multiply'
-      let titleGradient = ctx.createLinearGradient(0, 0, width / 2, height)
-      titleGradient.addColorStop(0, '#FFF')
-      titleGradient.addColorStop(1, '#999')
-      ctx.fillStyle = titleGradient
+      let bgGradient = ctx.createLinearGradient(0, 0, width / 2, height)
+      bgGradient.addColorStop(0, '#FFF')
+      bgGradient.addColorStop(1, '#999')
+      ctx.fillStyle = bgGradient
       ctx.fillRect(0, 0, width, height)
       ctx.globalCompositeOperation = 'source-over'
+
+      let screenShadow = new Image()
+      screenShadow.src = '/imgs/share-card/te-style/shadow@2x.png'
+      screenShadow.onload = () => {
+        ctx.drawImage(screenShadow, 0, 569, screenShadow.width / 2, screenShadow.height / 2)
+      }
 
       drawHeaderFooter(ctx)
 
@@ -352,6 +358,17 @@ function drawCanvas() {
       drawFirstRow(ctx)
       drawSecondRow(ctx)
       drawRpsArea(ctx)
+      
+      let reflection = new Image()
+      reflection.src = '/imgs/share-card/te-style/glass-highlight@2x.png'
+      reflection.onload = () => {
+        ctx.drawImage(reflection, 0, 107, reflection.width / 2, reflection.height / 2)
+      }
+      let gradientStyle = ctx.createLinearGradient(0, 107, 0, 110)
+      gradientStyle.addColorStop(0, 'rgba(255,255,255,0.3)')
+      gradientStyle.addColorStop(1, 'rgba(255,255,255,0)')
+      ctx.fillStyle = gradientStyle
+      ctx.fillRect(0, 107, width, 3)
     }
     
   } else {
