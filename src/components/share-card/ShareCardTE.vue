@@ -58,6 +58,7 @@ function drawHeaderFooter(ctx) {
     ctx.drawImage(brandImg, padding.left, padding.top, brandImg.width / 2, brandImg.height / 2)
   }
 
+  ctx.textAlign = 'start'
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
   ctx.font = `12px ${fontFamily}`
   ctx.fillText('Relative price strength'.toUpperCase() , padding.left, 92)
@@ -79,7 +80,7 @@ function drawStockTitle(ctx) {
   ctx.shadowBlur = 0
 
   ctx.fillStyle = 'rgba(255,255,255,0.6)'
-
+  ctx.textAlign = 'start'
   ctx.font = `500 13px ${fontFamily}`
   ctx.fillText(`${props.stock.company_code}.${(props.stock.bk).substring(0, 2).toUpperCase()}` , padding.left, 176)
 
