@@ -1,5 +1,4 @@
 <script setup>
-import html2canvas from 'html2canvas'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import ShareCardDefault from './ShareCardDefault.vue'
 import ShareCardReceiptsD from './ShareCardReceiptsD.vue'
@@ -54,9 +53,9 @@ function changeStyle(act) {
 
 const scaleRatio = ref(1.0)
 
-async function saveImage(filename) {
+function saveImage(filename) {
   document.getElementById('preview-frame').style.borderRadius = 0
-  const canvas = await html2canvas(document.getElementById('preview-frame'))
+  const canvas = document.getElementById('share-card-canvas')
   canvas.getContext("2d", {willReadFrequently: true})
   document.getElementById('preview-frame').style.borderRadius = '8px'
   const imgUrl = canvas.toDataURL('image/png')
@@ -147,6 +146,7 @@ onMounted(() => {
     margin-bottom: 16px;
     border-radius: 8px;
     overflow: hidden;
+    -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
     background-color: black;
   }
   #preview-frame {

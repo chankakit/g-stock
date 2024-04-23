@@ -112,7 +112,7 @@ export const columns = [
           let dom = 
           <div class={domClass} style={cellStyle}>
             <div class='cell-main-text'>{ sign }{ rowData.m10_offset_pct.toFixed(2) }%</div>
-            <div class='cell-tip-text' style="opacity: .9;" >{ rowData.m10.toFixed(2) } ({(rowData.close - rowData.m10) > 0 ?  '+' : ''}{(rowData.close - rowData.m10).toFixed(2)})</div>
+            <div class='cell-tip-text' style="opacity: .9;" >{ rowData.m10.toFixed(2) } ({rowData.m10_offset_pct > 0 ?  '+' : ''}{(rowData.m10 * rowData.m10_offset_pct / 100).toFixed(2)})</div>
           </div>
           return dom
         }

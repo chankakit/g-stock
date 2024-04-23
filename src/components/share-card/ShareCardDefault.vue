@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { contactInfo } from '../../assets/share-card-contact.js'
 
 const props = defineProps({
@@ -9,6 +9,7 @@ const props = defineProps({
 
 let rpsDaysKey = Object.keys(props.stock).filter(keyName => keyName.includes('rps'))
 rpsDaysKey.pop()
+rpsDaysKey.reverse()
 
 const numColor = computed(() => ({
   'red': props.stock.change_pct > 0,
@@ -20,166 +21,221 @@ if(props.stock.change_pct < 0) {
   dynamicLogoUrl.value = '/imgs/share-card/default/logo-green@2x.png'
 }
 
-onMounted(() => {
+const width = 390
+const height = 600
+const padding = {
+  top: 24,
+  right: 24,
+  bottom: 24,
+  left: 24
+}
+const contentWidth = width - padding.left - padding.right
 
+// 绘制页眉页脚
+function drawHeaderFooter(ctx) {
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'
+  ctx.font = "500 12px 'Ubuntu', sans-serif"
+  ctx.fillText('个股 RPS 强度' , padding.left, 32)
+  ctx.fillText(props.date , width - padding.right - ctx.measureText(props.date).width, 32)
+  
+  let nextElementXPos = width - padding.right - ctx.measureText(contactInfo.value).width
+  ctx.fillText(contactInfo.value , nextElementXPos, height - padding.bottom)
+  ctx.font = "400 12px 'Ubuntu', sans-serif"
+  nextElementXPos = nextElementXPos - ctx.measureText(contactInfo.type).width - 4
+  ctx.fillText(contactInfo.type , nextElementXPos, height - padding.bottom)
+  
+  let brandImg = new Image()
+  brandImg.src = dynamicLogoUrl.value
+  brandImg.onload = () => {
+    ctx.drawImage(brandImg, padding.left, height - padding.bottom - brandImg.height / 2, brandImg.width / 2, brandImg.height / 2)
+  }
+}
+
+// 绘制名称
+function drawStockTitle(ctx) {
+  ctx.textBaseline = 'top'
+  // 创建线性渐变
+  let titleGradient = ctx.createLinearGradient(0, 95, 0, 121)
+  titleGradient.addColorStop(0, 'rgba(255,255,255,1)')
+  titleGradient.addColorStop(1, 'rgba(255,255,255,0.65)')
+  ctx.fillStyle = titleGradient
+  ctx.font = "700 28px 'Ubuntu', sans-serif"
+  ctx.fillText(props.stock.company_abbr, padding.left, 96)
+
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
+  ctx.font = "500 14px 'Ubuntu', sans-serif"
+  ctx.fillText(`${props.stock.company_code}.${(props.stock.bk).substring(0, 2).toUpperCase()}` , padding.left, 132)
+}
+
+// 绘制股价数据
+function drawStockPrice(ctx) {
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'
+  ctx.beginPath()
+  ctx.moveTo(padding.left, 168)
+  ctx.lineTo(padding.left + contentWidth, 168)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(padding.left, 245)
+  ctx.lineTo(padding.left + contentWidth, 245)
+  ctx.stroke()
+
+  ctx.textBaseline = 'alphabetic'
+  if(props.stock.close == '停牌') {
+    ctx.fillStyle = '#FFFFFF'
+    ctx.font = "700 24px 'Ubuntu', sans-serif"
+    ctx.fillText(props.stock.close, padding.left, 203)
+  } else {
+    ctx.fillStyle = numColor.value.red ? '#FF293B' : '#00BA92'
+    ctx.font = "700 24px Ubuntu, sans-serif"
+    let drawText = props.stock.close.toFixed(2)
+    ctx.fillText(drawText, padding.left, 203)
+    let nextTextXPos = padding.left + ctx.measureText(drawText).width
+    ctx.font = "500 16px 'Ubuntu', sans-serif"
+    drawText = `${numColor.value.red ? '+' : ''}${props.stock.change_abs.toFixed(2)}`
+    ctx.fillText(drawText, nextTextXPos + 16, 203)
+    nextTextXPos = nextTextXPos + 16 + ctx.measureText(drawText).width
+    drawText = `${numColor.value.red ? '+' : ''}${props.stock.change_pct.toFixed(2)}%`
+    ctx.fillText(drawText, nextTextXPos + 8, 203)
+  }
+
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = "500 12px 'Ubuntu', sans-serif"
+
+  let nextElementXPos = padding.left
+  let drawText = '量比  停牌'
+  if(props.stock.rvol === '停牌') {
+    // 
+  } else {
+    drawText = `量比  ${props.stock.rvol.toFixed(2)}`
+  }
+  
+  ctx.fillText(drawText, padding.left, 227)
+
+  nextElementXPos = nextElementXPos + ctx.measureText(drawText).width + 8
+  ctx.beginPath()
+  ctx.moveTo(nextElementXPos, 217)
+  ctx.lineTo(nextElementXPos, 228)
+  ctx.stroke()
+
+  nextElementXPos = nextElementXPos + 8
+  drawText = `MA10  ${props.stock.m10.toFixed(2)}`
+  ctx.fillText(drawText, nextElementXPos, 227)
+
+  nextElementXPos = nextElementXPos + ctx.measureText(drawText).width + 8
+  ctx.beginPath()
+  ctx.moveTo(nextElementXPos, 217)
+  ctx.lineTo(nextElementXPos, 228)
+  ctx.stroke()
+
+  nextElementXPos = nextElementXPos + 8
+  drawText = `MA10 偏离  ${props.stock.m10_offset_pct > 0 ? '+' : ''}${props.stock.m10_offset_pct.toFixed(2)}% (${props.stock.m10_offset_pct > 0 ? '+' : ''}${(props.stock.m10 * props.stock.m10_offset_pct / 100).toFixed(2)})`
+  ctx.fillText(drawText, nextElementXPos, 227)
+}
+
+function drawRpsBox(x, y, width, height, title, value, ctx) {
+  const boxBGColor = 'rgb(39, 39, 46)'
+  const titleColor = 'rgba(255, 255, 255, 0.6)'
+  const valueColor = {
+    normal: '#FFFFFF',
+    highlight: '#FFBF1D'
+  }
+  const boxPadding = 12
+
+  ctx.fillStyle = boxBGColor
+  ctx.beginPath()
+  ctx.roundRect(x, y, width, height, 8)
+  ctx.fill()
+
+  ctx.fillStyle = titleColor
+  ctx.textBaseline = 'top'
+  ctx.font = "500 12px 'Ubuntu', sans-serif"
+  ctx.fillText(title, x + boxPadding, y + boxPadding + 2)
+
+  if(value > 87) {
+    ctx.fillStyle = valueColor.highlight
+  } else {
+    ctx.fillStyle = valueColor.normal
+  }
+  
+  ctx.textBaseline = 'alphabetic'
+  ctx.font = "700 20px 'Ubuntu', sans-serif"
+  ctx.fillText(value.toFixed(2), x + boxPadding, y + height - boxPadding - 3)
+}
+
+function drawRpsArea(ctx) {
+  // 绘制 rps 部分
+  const gap = 6
+  const itemNumPerRow = 3
+  const boxWidth = (contentWidth - gap * (itemNumPerRow - 1)) / 3
+  const boxHeight = 65
+  const firstRowYPos = 266
+
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < itemNumPerRow; col++) {
+      drawRpsBox( col * (boxWidth + gap) + padding.left, firstRowYPos + row * (gap + boxHeight), 
+                  boxWidth, boxHeight, 
+                  rpsDaysKey[col + row * 3].toUpperCase().replace('_', ' '), 
+                  props.stock[rpsDaysKey[col + row * 3]], 
+                  ctx)
+    }
+  }
+  drawRpsBox(padding.left, 408, contentWidth, boxHeight, 'RPS Mean', props.stock['rps_mean'], ctx)
+}
+
+function drawCanvas() {
+  const ratio = window.devicePixelRatio || 1
+  let canvas = document.getElementById('share-card-canvas')
+
+  canvas.width = width * ratio
+  canvas.height = height * ratio
+
+  canvas.style.width = width + 'px'
+  canvas.style.height = height + 'px'
+  
+  if(canvas.getContext) {
+    let ctx = canvas.getContext('2d')
+    ctx.scale(ratio, ratio)
+
+    // 绘制背景颜色
+    ctx.fillStyle = '#19191C'
+    ctx.fillRect(0, 0, width, height)
+
+    // 绘制背景纹理
+    let bgPattern = new Image()
+    bgPattern.src = '/imgs/bg_pattern.svg'
+    bgPattern.onload = () => {
+      let patternCanvas = document.createElement('canvas')
+      let patternCtx = patternCanvas.getContext('2d')
+      patternCanvas.width = bgPattern.width / 2
+      patternCanvas.height = bgPattern.height / 2
+      patternCtx.drawImage(bgPattern, 0, 0, bgPattern.width, bgPattern.height, 0, 0, patternCanvas.width, patternCanvas.height)
+
+      const ptrn = ctx.createPattern(patternCanvas, "repeat")
+      ctx.fillStyle = ptrn
+      ctx.fillRect(0, 0, width, height)
+
+      drawHeaderFooter(ctx)
+      drawStockTitle(ctx)
+      drawStockPrice(ctx)
+      drawRpsArea(ctx)
+    }
+  } else {
+    console.log('no dom')
+  }
+}
+
+
+onMounted(() => {
+  drawCanvas()
 })
 </script>
 
 <template>
-  <div class="default-style">
-    <div class="flex-h-center white-50">
-      <span class="text-tiny">个股 RPS 强度</span>
-      <span class="text-tiny">{{ date }}</span>
-    </div>
-    <div class="stock-data">
-      <div class="stock-info">
-        <h1 class="text-large stock-name">{{ stock.company_abbr }}</h1>
-        <h2 class="text-small white-60 t-med">{{ stock.company_code }}.{{ (stock.bk).substring(0, 2).toUpperCase() }}</h2>
-      </div>
-
-      <div class="stock-latest-price" v-if="stock.close === '停牌'">
-        <div class="text-big close">{{ stock.close }}</div>
-      </div>
-      <div class="stock-latest-price" v-else>
-        <div class="flex baseline-align" style="margin-bottom: 8px;">
-          <div :class="numColor" class="text-big t-bold">{{ stock.close.toFixed(2) }}</div>
-          <div :class="numColor" class="text-regular t-med" style="margin-left: 16px;">
-            <span>{{ stock.change_pct > 0 ? '+' : '' }}{{ stock.change_abs.toFixed(2) }}</span>
-            <span style="margin-left: 8px;">{{ stock.change_pct > 0 ? '+' : '' }}{{ stock.change_pct.toFixed(2) }}%</span>
-          </div>
-        </div>
-        <div class="flex text-tiny t-med">
-          <div :class="{ 'highlight': stock.rvol >= 2.5 }"><span class="data-key">量比</span>{{stock.rvol.toFixed(2) }}</div>
-          <div class="v-line"></div>
-          <div><span class="data-key">MA10</span>{{ stock.m10.toFixed(2) }}</div>
-          <div class="v-line"></div>
-          <div>
-            <span class="data-key">MA10 偏离</span>
-            {{ stock.m10_offset_pct > 0 ? '+' : '' }}
-            {{ stock.m10_offset_pct.toFixed(2) }}% 
-            ({{ (stock.close - stock.m10)>0? '+' : '' }} {{ (stock.close - stock.m10).toFixed(2) }})</div>
-        </div>
-      </div>
-
-      <ul class="rps-list flex-h-center">
-        <li class="rps-card" v-for="(rpsKey, index) in rpsDaysKey.reverse()">
-          <div class="text-tiny t-med rps-key white-60">{{ rpsKey.toUpperCase().replace('_', ' ') }}</div>
-          <div class="text-med t-bold" :class="{ highlight: stock[rpsKey] >= 87 }">{{ stock[rpsKey].toFixed(2) }}</div>
-        </li>
-        <li class="rps-card">
-          <div class="text-tiny t-med rps-key white-60">RPS Mean</div>
-          <div class="text-med t-bold" :class="{ highlight: stock['rps_mean'] >= 87 }">{{ stock['rps_mean'].toFixed(2)
-            }}</div>
-        </li>
-      </ul>
-    </div>
-    <div class="flex-h-center footer">
-      <img :src="dynamicLogoUrl" width="96">
-      <div class="text-tiny white-50">
-        {{ contactInfo.type }}
-        {{ contactInfo.value }}
-      </div>
-    </div>
-  </div>
+  <canvas id="share-card-canvas"></canvas>
 </template>
 
 <style lang="scss" scoped>
-.baseline-align {
-  align-items: baseline;
-}
-.text-large {
-  font-size: 28px;
-}
-.text-big {
-  font-size: 24px;
-}
-.text-med {
-  font-size: 20px;
-}
-.text-regular {
-  font-size: 16px;
-}
-.text-small {
-  font-size: 14px;
-}
-.text-tiny {
-  font-size: 12px;
-}
-
-.t-bold {
-  font-weight: 700;
-}
-.t-med {
-  font-weight: 500;
-}
-
-.white-60 {
-  color: #fff;
-  opacity: .6;
-}
-
-.white-50 {
-  color: #fff;
-  opacity: .5;
-}
-
-.v-line {
-  margin: 0 8px;
-  width: 1px;
-  background-color: #fff;
-  opacity: 0.3;
-}
-
-.default-style {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 390px;
-  height: 600px;
-  padding: 24px 24px 18px 24px;
-  background-color: #19191c;
-  background-image: url(/imgs/bg_pattern.svg);
-  background-size: 24.4px;
-  background-position-y: -5px;
-}
-.stock-data {
-  flex: 1;
-  margin-top: 58px;
-  .stock-name {
-    // background: -webkit-linear-gradient(rgb(255,255,255), rgba(255,255,255,.7));
-    // -webkit-background-clip: text;
-    // background-clip: text;
-    // -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
-  }
-  .stock-latest-price {
-    margin: 20px 0;
-    padding: 12px 0 16px 0;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-  .data-key {
-    margin-right: 6px;
-    opacity: .7;
-  }
-  .rps-list {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .rps-card {
-    box-sizing: border-box;
-    width: 110px;
-    flex-grow: 1;
-    padding: 12px;
-    border-radius: 8px;
-    background-color: #27272E;
-    .rps-key {
-      margin-bottom: 4px;
-    }
-  }
-}
-.footer {
-  align-items: flex-end;
+#share-card-canvas {
+  position: absolute;
 }
 </style>
