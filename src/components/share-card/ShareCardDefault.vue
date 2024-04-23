@@ -33,17 +33,16 @@ const contentWidth = width - padding.left - padding.right
 
 // 绘制页眉页脚
 function drawHeaderFooter(ctx) {
-  ctx.textBaseline = 'top'
   ctx.fillStyle = 'rgba(255,255,255,0.5)'
   ctx.font = "500 12px 'Ubuntu', sans-serif"
-  ctx.fillText('个股 RPS 强度' , padding.left, padding.top)
-  ctx.fillText(props.date , width - padding.right - ctx.measureText(props.date).width, padding.top)
+  ctx.fillText('个股 RPS 强度' , padding.left, 32)
+  ctx.fillText(props.date , width - padding.right - ctx.measureText(props.date).width, 32)
   
   let nextElementXPos = width - padding.right - ctx.measureText(contactInfo.value).width
-  ctx.fillText(contactInfo.value , nextElementXPos, 562)
-  nextElementXPos = nextElementXPos - ctx.measureText(contactInfo.type).width - 4
+  ctx.fillText(contactInfo.value , nextElementXPos, height - padding.bottom)
   ctx.font = "400 12px 'Ubuntu', sans-serif"
-  ctx.fillText(contactInfo.type , nextElementXPos, 562)
+  nextElementXPos = nextElementXPos - ctx.measureText(contactInfo.type).width - 4
+  ctx.fillText(contactInfo.type , nextElementXPos, height - padding.bottom)
   
   let brandImg = new Image()
   brandImg.src = dynamicLogoUrl.value
@@ -88,13 +87,14 @@ function drawStockPrice(ctx) {
   } else {
     ctx.fillStyle = numColor.value.red ? '#FF293B' : '#00BA92'
     ctx.font = "700 24px Ubuntu, sans-serif"
-    ctx.fillText(props.stock.close, padding.left, 203)
-    let nextTextXPos = padding.left + ctx.measureText(props.stock.close).width
+    let drawText = props.stock.close.toFixed(2)
+    ctx.fillText(drawText, padding.left, 203)
+    let nextTextXPos = padding.left + ctx.measureText(drawText).width
     ctx.font = "500 16px 'Ubuntu', sans-serif"
-    let drawText = `${numColor.value.red ? '+' : ''}${props.stock.change_abs}`
+    drawText = `${numColor.value.red ? '+' : ''}${props.stock.change_abs.toFixed(2)}`
     ctx.fillText(drawText, nextTextXPos + 16, 203)
     nextTextXPos = nextTextXPos + 16 + ctx.measureText(drawText).width
-    drawText = `${numColor.value.red ? '+' : ''}${props.stock.change_pct}%`
+    drawText = `${numColor.value.red ? '+' : ''}${props.stock.change_pct.toFixed(2)}%`
     ctx.fillText(drawText, nextTextXPos + 8, 203)
   }
 
@@ -102,7 +102,13 @@ function drawStockPrice(ctx) {
   ctx.font = "500 12px 'Ubuntu', sans-serif"
 
   let nextElementXPos = padding.left
-  let drawText = `量比  ${props.stock.rvol}`
+  let drawText = '量比  停牌'
+  if(props.stock.rvol === '停牌') {
+    // 
+  } else {
+    drawText = `量比  ${props.stock.rvol.toFixed(2)}`
+  }
+  
   ctx.fillText(drawText, padding.left, 227)
 
   nextElementXPos = nextElementXPos + ctx.measureText(drawText).width + 8
@@ -112,7 +118,7 @@ function drawStockPrice(ctx) {
   ctx.stroke()
 
   nextElementXPos = nextElementXPos + 8
-  drawText = `MA10  ${props.stock.m10}`
+  drawText = `MA10  ${props.stock.m10.toFixed(2)}`
   ctx.fillText(drawText, nextElementXPos, 227)
 
   nextElementXPos = nextElementXPos + ctx.measureText(drawText).width + 8
@@ -122,7 +128,7 @@ function drawStockPrice(ctx) {
   ctx.stroke()
 
   nextElementXPos = nextElementXPos + 8
-  drawText = `MA10 偏离  ${props.stock.m10_offset_pct > 0 ? '+' : ''}${props.stock.m10_offset_pct} (${(props.stock.close - props.stock.m10)>0 ? '+' : ''}${(props.stock.close - props.stock.m10).toFixed(2)})`
+  drawText = `MA10 偏离  ${props.stock.m10_offset_pct > 0 ? '+' : ''}${props.stock.m10_offset_pct.toFixed(2)}% (${props.stock.m10_offset_pct > 0 ? '+' : ''}${(props.stock.m10 * props.stock.m10_offset_pct / 100).toFixed(2)})`
   ctx.fillText(drawText, nextElementXPos, 227)
 }
 
@@ -153,7 +159,7 @@ function drawRpsBox(x, y, width, height, title, value, ctx) {
   
   ctx.textBaseline = 'alphabetic'
   ctx.font = "700 20px 'Ubuntu', sans-serif"
-  ctx.fillText(value, x + boxPadding, y + height - boxPadding - 3)
+  ctx.fillText(value.toFixed(2), x + boxPadding, y + height - boxPadding - 3)
 }
 
 function drawRpsArea(ctx) {
