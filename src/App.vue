@@ -8,7 +8,6 @@ import StockPopup from './components/StockPopup.vue'
 import DescriptionPopup from './components/DescriptionPopup.vue'
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
-import { dataApiUrl } from './assets/api.js'
 import { dynamicFavicon } from './dynamic-favicon.js'
 
 const props = defineEmits({
@@ -34,37 +33,31 @@ watch(processedData, () => {
   currentPage.value = 1
   pageCount.value = Math.floor(processedData.value.length / pageSize.value) + 1
 })
-let jsonFile = {}
-fetch(dataApiUrl)
+
+// 载入 指数 数据
+fetch('/api/sse-index')
+  .then((response) => response.json())
+  .then(async (json) => {
+    indexData.value = json
+    lastUpdateDate.value = indexData.value.date.replace(/(\d{4})(\d{2})(\d{2})/g, '$1-$2-$3')
+    dynamicFavicon(indexData.value.change_pct)
+  })
+
+// 载入 rps 数据
+fetch('/api/price-and-rps')
   .then((response) => response.json())
   .then((json) => {
-    jsonFile = json.result[0]
-
-    // 载入 指数 数据
-    fetch(jsonFile.sse.file_url)
-      .then((response) => response.json())
-      .then((json) => {
-        indexData.value = json
-        lastUpdateDate.value = indexData.value.date.replace(/(\d{4})(\d{2})(\d{2})/g, '$1-$2-$3')
-        dynamicFavicon(indexData.value.change_pct)
-      })
-
-    // 载入 rps 数据
-    fetch(jsonFile.rps.file_url)
-      .then((response) => response.json())
-      .then((json) => {
-        originalData = json  
-        let ps = originalData[Math.floor(originalData.length * Math.random())]
-        // 设置搜索框的 placeholder 文本
-        searchInputPlaceholder.value = ps.company_code + ' / ' + ps.company_abbr + ' / ' + ps.company_pinyin
-        processedData.value = json
-        // 默认按 RPS 60 倒序展示
-        const defaultSortArgs = {
-          key: 'rps_60',
-          order: TableV2SortOrder.DESC
-        }
-        onSort(defaultSortArgs)
-      })
+    originalData = json  
+    let ps = originalData[Math.floor(originalData.length * Math.random())]
+    // 设置搜索框的 placeholder 文本
+    searchInputPlaceholder.value = ps.company_code + ' / ' + ps.company_abbr + ' / ' + ps.company_pinyin
+    processedData.value = json
+    // 默认按 RPS 60 倒序展示
+    const defaultSortArgs = {
+      key: 'rps_60',
+      order: TableV2SortOrder.DESC
+    }
+    onSort(defaultSortArgs)
   })
 
 
@@ -507,9 +500,10 @@ onMounted(() => {
                 </div>
                 <div class="el-table-v1-header filter-row" v-show="headerRowHeight.length > 1" :style="{height: headerRowHeight[1]+'px', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start'}">
                   <span class="filter-text" v-if="scope.column.no === 0">Filter ON</span>
-                  <span class="filter-text" v-if="scope.column.no > 1 && filters[scope.column.no-2].isOn">
+                  <span class="filter-text" v-if="scope.column.no > 1 && scope.column.no < 11">
+                    <!-- <span>{{scope.column.no}} {{ filters[scope.column.no-2] }}</span> -->
                     [{{ filters[scope.column.no-2].min === -Infinity ? '-∞' : filters[scope.column.no-2].min }},
-                     {{ filters[scope.column.no-2].max === +Infinity ? '+∞' : filters[scope.column.no-2].max }}]
+                      {{ filters[scope.column.no-2].max === +Infinity ? '+∞' : filters[scope.column.no-2].max }}]
                   </span>
                 </div>
               </div>

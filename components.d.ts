@@ -17,7 +17,14 @@ declare module '@vue/runtime-core' {
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    Footer: typeof import('./src/components/Footer.vue')['default']
+    Header: typeof import('./src/components/Header.vue')['default']
     IndexGraphic: typeof import('./src/components/IndexGraphic.vue')['default']
+    ShareCardDefault: typeof import('./src/components/share-card/ShareCardDefault.vue')['default']
+    ShareCardReceiptsD: typeof import('./src/components/share-card/ShareCardReceiptsD.vue')['default']
+    ShareCardReceiptsL: typeof import('./src/components/share-card/ShareCardReceiptsL.vue')['default']
+    ShareCardTE: typeof import('./src/components/share-card/ShareCardTE.vue')['default']
+    SharePopup: typeof import('./src/components/share-card/SharePopup.vue')['default']
     StockPopup: typeof import('./src/components/StockPopup.vue')['default']
   }
 }

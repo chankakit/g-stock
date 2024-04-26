@@ -217,4 +217,21 @@ export const columns = [
     "fixed": false,
     "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_mean'], highlightThreshold, 1),
   },
+  {
+    "dataKey": "g_stock",
+    "key": "g_stock",
+    "title": "金股",
+    "sortable": true,
+    "width": rpsColumnWidth,
+    "align": "right",
+    "flexGrow": 1,
+    "fixed": false,
+    "cellRendererV1":  (rowData) => {
+      let dom = 
+      <div style={"cursor: pointer;"}>
+        <div class='cell-main-text'>{ rowData.g_stock }</div>
+      </div>
+      return dom
+    },
+  },
 ]
