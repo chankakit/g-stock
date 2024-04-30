@@ -1,7 +1,7 @@
 <script setup lang='jsx'>
 import { ref, toRaw, onMounted, computed, watch } from 'vue'
 import { TableV2SortOrder } from 'element-plus'
-import { columns } from './components/TableColumnConfig.jsx'
+import { columnsLeft, columnsCanFilter, columnsRight } from './components/TableColumnConfig.jsx'
 import { defaultFiltersConfig } from './components/FilterConfig.js'
 import IndexGraphic from './components/IndexGraphic.vue'
 import StockPopup from './components/StockPopup.vue'
@@ -173,6 +173,29 @@ const onSort = (sortBy) => {
   currentPage.value = 1
   sortState.value = sortBy
 }
+// 金股排序运行函数
+const onSortGStock = (sortBy) => {
+  if(sortState.value.key === sortBy.key) {
+    // 如果是点击同一列，就直接相反排序
+    processedData.value.reverse()
+    if(sortState.value.order === 'asc') { sortBy.order = 'desc' }
+    else { sortBy.order = 'asc' }
+  } else {
+    // 如果不是同一列，则默认按倒序处理
+    processedData.value.sort((a, b) => {
+      if(a[sortBy.key] === b[sortBy.key]) {
+        // 如果金股值一样，则以 rps_mean 来排序
+        return -(a['rps_mean'] - b['rps_mean'])
+      } else {
+        return sortBy.orderBy.indexOf(a[sortBy.key]) - sortBy.orderBy.indexOf(b[sortBy.key])
+      }
+    })
+    sortBy.order = 'desc'
+  }
+  currentPage.value = 1
+  sortState.value = sortBy
+}
+
 // 分割处理后数据，用于分页展示
 const slicedData = computed(() => {
   const chunkSize = pageSize.value
@@ -246,6 +269,17 @@ const elTableV1Sort = (column) => {
     onSort(sortBy)
   }
 }
+// 点击金股排序入口
+const elTableGStockSort = (column => {
+  if(column.sortable) {
+    let sortBy = {
+      key: column.key,
+      orderBy: column.sortOrderBy
+    }
+    onSortGStock(sortBy)
+  }
+})
+
 const filterSort = (sortBy) => {
   if(sortBy.key === '') { 
     sortBy.key = sortState.value.key
@@ -474,7 +508,29 @@ onMounted(() => {
           row-class-name="el-table-v1-row"
           header-row-class-name="el-table-v1-header">
           <el-table-column
-            v-for="col in columns" 
+            v-for="col in columnsLeft"
+            :prop="col.key"
+            :label="col.title"
+            :align="col.align"
+            :fixed="col.fixed"
+            :min-width="col.minWidth">
+            <template #default="scope">
+              <component :is="col.cellRendererV1(scope.row)" @click="rowClick(scope.row)" />
+            </template>
+            <template #header="scope">
+              <div>
+                <div class="el-table-v1-header title-row" 
+                  :style="{ height: headerRowHeight[0]+'px', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start' }">
+                  {{ scope.column.label }}
+                </div>
+                <div class="el-table-v1-header filter-row" v-show="headerRowHeight.length > 1" :style="{height: headerRowHeight[1]+'px', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start'}">
+                  <span class="filter-text" v-if="scope.column.no === 0">Filter ON</span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-for="(col,index) in columnsCanFilter" 
             :prop="col.key"
             :label="col.title"
             :align="col.align"
@@ -499,15 +555,43 @@ onMounted(() => {
                   </div>
                 </div>
                 <div class="el-table-v1-header filter-row" v-show="headerRowHeight.length > 1" :style="{height: headerRowHeight[1]+'px', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start'}">
-                  <span class="filter-text" v-if="scope.column.no === 0">Filter ON</span>
-                  <span class="filter-text" v-if="scope.column.no > 1 && scope.column.no < 11">
-                    <!-- <span>{{scope.column.no}} {{ filters[scope.column.no-2] }}</span> -->
-                    [{{ filters[scope.column.no-2].min === -Infinity ? '-∞' : filters[scope.column.no-2].min }},
-                      {{ filters[scope.column.no-2].max === +Infinity ? '+∞' : filters[scope.column.no-2].max }}]
+                  <span class="filter-text" v-show="filters[index].isOn">
+                    [{{ filters[index].min === -Infinity ? '-∞' : filters[index].min }}, {{ filters[index].max === +Infinity ? '+∞' : filters[index].max }}]
                   </span>
                 </div>
               </div>
             </template>
+          </el-table-column>
+          <el-table-column
+            v-for="col in columnsRight"
+              :prop="col.key"
+              :label="col.title"
+              :align="col.align"
+              :fixed="col.fixed"
+              :min-width="col.minWidth">
+              <template #default="scope">
+                <component :is="col.cellRendererV1(scope.row)" @click="rowClick(scope.row)" />
+              </template>
+              <template #header="scope">
+                <div>
+                  <div class="el-table-v1-header title-row" :class="{'sortable-header': col.sortable}"
+                    :style="{ height: headerRowHeight[0]+'px', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start' }"
+                    @click="elTableGStockSort(col)">
+                    {{ scope.column.label }}
+                    <div class="el-table-v1-sort" v-show="col.sortable && sortState.key === col.key" style="height: 16px;">
+                      <div class="sort-icon" v-show="sortState.order === 'desc'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path fill="#fff" d="M8.416 9.148a.2.2 0 0 0-.156.325l3.584 4.48c.08.1.232.1.312 0l3.584-4.48a.2.2 0 0 0-.156-.325H12.89a.2.2 0 0 1-.2-.2V3.91a.2.2 0 0 0-.2-.2h-1.015a.2.2 0 0 0-.2.2v5.038a.2.2 0 0 1-.2.2H8.416Z"/><path fill="#fff" fill-rule="evenodd" d="M4 4.2c0-.11.09-.2.2-.2h2.6c.11 0 .2.09.2.2v.6a.2.2 0 0 1-.2.2H4.2a.2.2 0 0 1-.2-.2v-.6Zm0 3c0-.11.09-.2.2-.2h2.6c.11 0 .2.09.2.2v.6a.2.2 0 0 1-.2.2H4.2a.2.2 0 0 1-.2-.2v-.6Zm0 3c0-.11.09-.2.2-.2h2.6c.11 0 .2.09.2.2v.6a.2.2 0 0 1-.2.2H4.2a.2.2 0 0 1-.2-.2v-.6Z" clip-rule="evenodd"/></svg>
+                      </div>
+                      <div class="sort-icon" v-show="sortState.order === 'asc'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path fill="#fff" d="M15.584 7a.2.2 0 0 0 .156-.325l-3.584-4.48a.2.2 0 0 0-.312 0L8.26 6.675A.2.2 0 0 0 8.416 7h2.694c.11 0 .2.09.2.2v5.038c0 .11.09.2.2.2h1.015a.2.2 0 0 0 .2-.2V7.2c0-.11.09-.2.2-.2h2.659Z"/><path fill="#fff" fill-rule="evenodd" d="M4 5.2c0-.11.09-.2.2-.2h2.6c.11 0 .2.09.2.2v.6a.2.2 0 0 1-.2.2H4.2a.2.2 0 0 1-.2-.2v-.6Zm0 3c0-.11.09-.2.2-.2h2.6c.11 0 .2.09.2.2v.6a.2.2 0 0 1-.2.2H4.2a.2.2 0 0 1-.2-.2v-.6Zm0 3c0-.11.09-.2.2-.2h2.6c.11 0 .2.09.2.2v.6a.2.2 0 0 1-.2.2H4.2a.2.2 0 0 1-.2-.2v-.6Z" clip-rule="evenodd"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="el-table-v1-header filter-row" v-show="headerRowHeight.length > 1" :style="{height: headerRowHeight[1]+'px', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start'}">
+                    <span class="filter-text"></span>
+                  </div>
+                </div>
+              </template>
           </el-table-column>
         </el-table>
       </div>

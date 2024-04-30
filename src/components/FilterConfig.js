@@ -4,22 +4,22 @@ export const defaultFiltersConfig = [
       isOn: false,
       name: "涨跌幅%",
       key: "change_pct",
-      min: -Infinity,
-      max: +Infinity
+      min: '',
+      max: ''
     },
     {
       isOn: false,
       name: "M10偏离量",
       key: "m10_offset_pct",
-      min: -Infinity,
-      max: Infinity
+      min: '',
+      max: ''
     },
     {
       isOn: false,
       name: "量比",
       key: "rvol",
       min: 0,
-      max: Infinity
+      max: ''
     },
     {
       isOn: false,

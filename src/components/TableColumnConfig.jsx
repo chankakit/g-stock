@@ -14,7 +14,7 @@ function singleNumCellDom(data, highlightValue=null, decimalPoint=2) {
   return dom
 }
 
-export const columns = [
+export const columnsLeft = [
   {
     "dataKey": "stock",
     "key": "stock",
@@ -42,6 +42,11 @@ export const columns = [
     "fixed": false,
     "cellRendererV1": (rowData) => <div class='cell-main-text'>{ rowData.close === '停牌' ? '停牌' : rowData.close.toFixed(2) }</div>,
   },
+]
+
+// 该数组需要跟 FilterConfig.js 文件里的 
+// defaultFiltersConfig 一致顺序和长度
+export const columnsCanFilter = [
   {
     "dataKey": "change_pct",
     "key": "change_pct",
@@ -217,11 +222,15 @@ export const columns = [
     "fixed": false,
     "cellRendererV1": (rowData) => singleNumCellDom(rowData['rps_mean'], highlightThreshold, 1),
   },
+]
+
+export const columnsRight = [
   {
     "dataKey": "g_stock",
     "key": "g_stock",
     "title": "金股",
     "sortable": true,
+    "sortOrderBy": ['🎯 金股', '⭐️ 优选', '谨慎', '潜力', '-'],
     "width": rpsColumnWidth,
     "align": "right",
     "flexGrow": 1,
