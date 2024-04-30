@@ -5,6 +5,9 @@ import ShareCardReceiptsD from './ShareCardReceiptsD.vue'
 import ShareCardReceiptsL from './ShareCardReceiptsL.vue'
 import ShareCardTE from './ShareCardTE.vue'
 
+let exp_date = new Date()
+exp_date.setTime(exp_date.getTime() + (14 * 24 * 60 * 60 * 1000))
+
 function getCurrentStyleIndexFromCookie() {
   const cookie = document.cookie
   const cookieArray = cookie.split(';')
@@ -48,7 +51,7 @@ const currentStyle = ref(shareImgStylesList[currentStyleIndex.value])
 function changeStyle(act) {
   currentStyleIndex.value = currentStyleIndex.value + act
   currentStyle.value = shareImgStylesList[currentStyleIndex.value]
-  document.cookie =`currentStyleIndex=${currentStyleIndex.value}`;
+  document.cookie =`currentStyleIndex=${currentStyleIndex.value};expires=${exp_date.toGMTString()}`
 }
 
 const scaleRatio = ref(1.0)
